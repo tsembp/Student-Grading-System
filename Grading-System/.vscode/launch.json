@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Launch StudentGradingSystemUI",
+      "request": "launch",
+      "mainClass": "ui.StudentGradingSystemUI", 
+      "vmArgs": "--module-path C:/Users/panag/Documents/javaFX-23/javafx-sdk-23.0.1/lib --add-modules javafx.controls,javafx.fxml"
+    }
+  ]
+}
