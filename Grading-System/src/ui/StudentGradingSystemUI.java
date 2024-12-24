@@ -85,13 +85,17 @@ public class StudentGradingSystemUI extends Application {
         TextArea studentListArea = new TextArea();
         studentListArea.setEditable(false);
 
+        // List Students Section
         listStudentsButton.setOnAction(e -> {
             StringBuilder sb = new StringBuilder();
             for (Student student : studentService.getAllStudents().values()) {
-                sb.append(student).append("\n");
+                sb.append(student.toString());  // Use the overridden toString method
+                sb.append("\n");
             }
+
             studentListArea.setText(sb.toString());
         });
+
 
         studentLayout.getChildren().addAll(
                 new Label("Students:"),

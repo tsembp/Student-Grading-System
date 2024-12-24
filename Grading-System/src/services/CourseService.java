@@ -23,13 +23,13 @@ public class CourseService {
         return courses.get(courseId);
     }
 
-    // Assign grade to a student for a specific course
     public void assignGradeToCourse(Student student, Course course, double grade) {
         // Check if the student is already enrolled in the course
         if (student.getCourses().contains(course)) {
             course.assignGrade(student, grade);  // Assuming Course has a method to assign grades
         } else {
-            System.out.println("Student is not enrolled in the course.");
+            System.out.println("Student not enrolled in this course.");
         }
     }
+    
 }

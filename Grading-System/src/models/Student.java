@@ -18,7 +18,10 @@ public class Student {
     }
 
     public void addCourse(Course course) {
-        this.courses.add(course);
+        if (!courses.contains(course)) {
+            courses.add(course);
+            course.addStudent(this);
+        }
     }
 
     public String getName() {
@@ -37,8 +40,28 @@ public class Student {
         return courses;
     }
 
+    public String getCoursesAndGrades() {
+        StringBuilder sb = new StringBuilder();
+        for (Course course : courses) {
+            double grade = course.getGradeForStudent(this);
+            sb.append(course.getName())
+              .append(" (Grade: ").append(grade == -1 ? "Not Assigned" : grade).append(")\n");
+        }
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
-        return "ID: " + id + ", Name: " + name + ", Class: " + className;
+        StringBuilder sb = new StringBuilder();
+        sb.append("ID: ").append(id).append(", Name: ").append(name).append(", Class: ").append(className).append("\n");
+        sb.append("> Assigned Courses:\n");
+        
+        if (courses.isEmpty()) {
+            sb.append("No enrolled courses.\n");
+        } else {
+            sb.append(getCoursesAndGrades());
+        }
+        
+        return sb.toString();
     }
 }
