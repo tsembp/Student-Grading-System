@@ -29,9 +29,9 @@ public class StudentGradingSystemUI extends Application {
         topSection.setStyle("-fx-alignment: center; -fx-padding: 10;");
         mainLayout.setTop(topSection);
 
-        // Center: Tabs for Students, Courses, and Grading
+        // Center: Tabs for Students and Courses
         TabPane tabPane = new TabPane();
-        tabPane.getTabs().addAll(createStudentTab(), createCourseTab(), createGradeTab());
+        tabPane.getTabs().addAll(createStudentTab(), createCourseTab());
         mainLayout.setCenter(tabPane);
 
         // Scene setup
@@ -40,6 +40,7 @@ public class StudentGradingSystemUI extends Application {
         primaryStage.show();
     }
 
+    // Create Student Tab
     private Tab createStudentTab() {
         Tab studentTab = new Tab("Manage Students");
         studentTab.setClosable(false);
@@ -52,15 +53,19 @@ public class StudentGradingSystemUI extends Application {
         nameField.setPromptText("Name");
         TextField idField = new TextField();
         idField.setPromptText("ID");
+        TextField classField = new TextField();
+        classField.setPromptText("Class");
 
         Button addStudentButton = new Button("Add Student");
         addStudentButton.setOnAction(e -> {
             String name = nameField.getText();
             String id = idField.getText();
-            if (!name.isEmpty() && !id.isEmpty()) {
-                studentService.addStudent(new Student(name, id));
+            String className = classField.getText();
+            if (!name.isEmpty() && !id.isEmpty() && !className.isEmpty()) {
+                studentService.addStudent(new Student(name, id, className));
                 nameField.clear();
                 idField.clear();
+                classField.clear();
                 showAlert("Success", "Student added successfully!");
             } else {
                 showAlert("Error", "Please fill in all fields.");
@@ -71,6 +76,7 @@ public class StudentGradingSystemUI extends Application {
                 new Label("Add Student:"),
                 nameField,
                 idField,
+                classField,
                 addStudentButton
         );
 
@@ -97,19 +103,20 @@ public class StudentGradingSystemUI extends Application {
         return studentTab;
     }
 
+    // Create Course Tab
     private Tab createCourseTab() {
         Tab courseTab = new Tab("Manage Courses");
         courseTab.setClosable(false);
-    
+
         VBox courseLayout = new VBox(10);
         courseLayout.setStyle("-fx-padding: 10;");
-    
+
         // Add Course Section
         TextField courseNameField = new TextField();
         courseNameField.setPromptText("Course Name");
         TextField courseIdField = new TextField();
         courseIdField.setPromptText("Course ID");
-    
+
         Button addCourseButton = new Button("Add Course");
         addCourseButton.setOnAction(e -> {
             String name = courseNameField.getText();
@@ -123,88 +130,75 @@ public class StudentGradingSystemUI extends Application {
                 showAlert("Error", "Please fill in all fields.");
             }
         });
-    
+
         courseLayout.getChildren().addAll(
                 new Label("Add Course:"),
                 courseNameField,
                 courseIdField,
                 addCourseButton
         );
-    
-        // List Courses Section
-        Button listCoursesButton = new Button("List Courses");
-        TextArea courseListArea = new TextArea();
-        courseListArea.setEditable(false);
-    
-        listCoursesButton.setOnAction(e -> {
-            StringBuilder sb = new StringBuilder();
-            for (Course course : courseService.getAllCourses().values()) {
-                sb.append(course).append("\n");
-            }
-            courseListArea.setText(sb.toString());
-        });
-    
-        courseLayout.getChildren().addAll(
-                new Label("Courses:"),
-                listCoursesButton,
-                courseListArea
-        );
-    
-        courseTab.setContent(courseLayout);
-        return courseTab;
-    }    
 
-    private Tab createGradeTab() {
-        Tab gradeTab = new Tab("Assign Grades");
-        gradeTab.setClosable(false);
-
-        VBox gradeLayout = new VBox(10);
-        gradeLayout.setStyle("-fx-padding: 10;");
-
-        // Assign Grade Section
+        // Assign Course to Student Section
         TextField studentIdField = new TextField();
         studentIdField.setPromptText("Student ID");
-        TextField courseIdField = new TextField();
-        courseIdField.setPromptText("Course ID");
+        TextField courseIdForStudentField = new TextField();
+        courseIdForStudentField.setPromptText("Course ID");
+
+        Button assignCourseButton = new Button("Assign Course to Student");
+        assignCourseButton.setOnAction(e -> {
+            String studentId = studentIdField.getText();
+            String courseId = courseIdForStudentField.getText();
+            Student student = studentService.findStudentById(studentId);
+            Course course = courseService.getCourseById(courseId);
+            if (student != null && course != null) {
+                student.addCourse(course);
+                showAlert("Success", "Course assigned to student successfully!");
+            } else {
+                showAlert("Error", "Student or Course not found.");
+            }
+        });
+
+        courseLayout.getChildren().addAll(
+                new Label("Assign Course to Student:"),
+                studentIdField,
+                courseIdForStudentField,
+                assignCourseButton
+        );
+
+        // Assign Grade Section
         TextField gradeField = new TextField();
         gradeField.setPromptText("Grade");
 
         Button assignGradeButton = new Button("Assign Grade");
         assignGradeButton.setOnAction(e -> {
             String studentId = studentIdField.getText();
-            String courseId = courseIdField.getText();
+            String courseId = courseIdForStudentField.getText();
             double grade = Double.parseDouble(gradeField.getText());
-
             Student student = studentService.findStudentById(studentId);
-            if (student != null) {
-                for (Course course : student.getCourses()) {
-                    if (course.getCourseId().equals(courseId)) {
-                        courseService.assignGrade(course, grade);
-                        showAlert("Success", "Grade assigned successfully!");
-                    }
-                }
+            Course course = courseService.getCourseById(courseId);
+            if (student != null && course != null) {
+                courseService.assignGradeToCourse(student, course, grade);
+                showAlert("Success", "Grade assigned successfully!");
             } else {
-                showAlert("Error", "Student not found.");
+                showAlert("Error", "Student or Course not found.");
             }
         });
 
-        gradeLayout.getChildren().addAll(
+        courseLayout.getChildren().addAll(
                 new Label("Assign Grade:"),
-                studentIdField,
-                courseIdField,
                 gradeField,
                 assignGradeButton
         );
 
-        gradeTab.setContent(gradeLayout);
-        return gradeTab;
+        courseTab.setContent(courseLayout);
+        return courseTab;
     }
 
-    private void showAlert(String title, String message) {
+    private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setContentText(content);
         alert.showAndWait();
     }
 

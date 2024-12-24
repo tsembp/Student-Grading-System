@@ -1,28 +1,35 @@
 package services;
 
 import models.Course;
+import models.Student;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CourseService {
 
-    // Store courses in a map
-    private Map<String, Course> courses = new HashMap<>();
+    private Map<String, Course> courses;
 
-    // Create a new course and add it to the courses map
-    public Course createCourse(String name, String courseId) {
-        Course course = new Course(name, courseId);
-        courses.put(courseId, course); // Store course by courseId
-        return course;
+    public CourseService() {
+        courses = new HashMap<>();
     }
 
-    // Get a list of all courses
-    public Map<String, Course> getAllCourses() {
-        return courses;
+    // Create a course and add it to the system
+    public void createCourse(String name, String courseId) {
+        courses.put(courseId, new Course(name, courseId));
     }
 
-    // Assign a grade to a course
-    public void assignGrade(Course course, double grade) {
-        course.setGrade(grade);
+    // Get a course by ID
+    public Course getCourseById(String courseId) {
+        return courses.get(courseId);
+    }
+
+    // Assign grade to a student for a specific course
+    public void assignGradeToCourse(Student student, Course course, double grade) {
+        // Check if the student is already enrolled in the course
+        if (student.getCourses().contains(course)) {
+            course.assignGrade(student, grade);  // Assuming Course has a method to assign grades
+        } else {
+            System.out.println("Student is not enrolled in the course.");
+        }
     }
 }
