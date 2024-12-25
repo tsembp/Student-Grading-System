@@ -19,12 +19,11 @@ public class StudentGradingSystemUI extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Student Grading System");
 
-        // Main layout
         BorderPane mainLayout = new BorderPane();
 
         // Top: Application Title
         Label titleLabel = new Label("Student Grading System");
-        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+        titleLabel.getStyleClass().add("title-label");
         VBox topSection = new VBox(titleLabel);
         topSection.setStyle("-fx-alignment: center; -fx-padding: 10;");
         mainLayout.setTop(topSection);
@@ -36,6 +35,7 @@ public class StudentGradingSystemUI extends Application {
 
         // Scene setup
         Scene scene = new Scene(mainLayout, 800, 600);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -51,12 +51,16 @@ public class StudentGradingSystemUI extends Application {
         // Add Student Section
         TextField nameField = new TextField();
         nameField.setPromptText("Name");
+        nameField.getStyleClass().add("input-field"); 
         TextField idField = new TextField();
         idField.setPromptText("ID");
+        idField.getStyleClass().add("input-field"); 
         TextField classField = new TextField();
         classField.setPromptText("Class");
+        classField.getStyleClass().add("input-field"); 
 
         Button addStudentButton = new Button("Add Student");
+        addStudentButton.getStyleClass().add("button");
         addStudentButton.setOnAction(e -> {
             String name = nameField.getText();
             String id = idField.getText();
@@ -82,20 +86,21 @@ public class StudentGradingSystemUI extends Application {
 
         // List Students Section
         Button listStudentsButton = new Button("List Students");
+        listStudentsButton.getStyleClass().add("button"); 
         TextArea studentListArea = new TextArea();
         studentListArea.setEditable(false);
+        studentListArea.getStyleClass().add("textarea"); 
 
         // List Students Section
         listStudentsButton.setOnAction(e -> {
             StringBuilder sb = new StringBuilder();
             for (Student student : studentService.getAllStudents().values()) {
-                sb.append(student.toString());  // Use the overridden toString method
+                sb.append(student.toString());  
                 sb.append("\n");
             }
 
             studentListArea.setText(sb.toString());
         });
-
 
         studentLayout.getChildren().addAll(
                 new Label("Students:"),
@@ -118,10 +123,13 @@ public class StudentGradingSystemUI extends Application {
         // Add Course Section
         TextField courseNameField = new TextField();
         courseNameField.setPromptText("Course Name");
+        courseNameField.getStyleClass().add("input-field"); 
         TextField courseIdField = new TextField();
         courseIdField.setPromptText("Course ID");
+        courseIdField.getStyleClass().add("input-field");
 
         Button addCourseButton = new Button("Add Course");
+        addCourseButton.getStyleClass().add("button");
         addCourseButton.setOnAction(e -> {
             String name = courseNameField.getText();
             String id = courseIdField.getText();
@@ -145,10 +153,13 @@ public class StudentGradingSystemUI extends Application {
         // Assign Course to Student Section
         TextField studentIdField = new TextField();
         studentIdField.setPromptText("Student ID");
+        studentIdField.getStyleClass().add("input-field"); 
         TextField courseIdForStudentField = new TextField();
         courseIdForStudentField.setPromptText("Course ID");
+        courseIdForStudentField.getStyleClass().add("input-field"); 
 
         Button assignCourseButton = new Button("Assign Course to Student");
+        assignCourseButton.getStyleClass().add("button");
         assignCourseButton.setOnAction(e -> {
             String studentId = studentIdField.getText();
             String courseId = courseIdForStudentField.getText();
@@ -172,8 +183,10 @@ public class StudentGradingSystemUI extends Application {
         // Assign Grade Section
         TextField gradeField = new TextField();
         gradeField.setPromptText("Grade");
+        gradeField.getStyleClass().add("input-field"); 
 
         Button assignGradeButton = new Button("Assign Grade");
+        assignGradeButton.getStyleClass().add("button"); 
         assignGradeButton.setOnAction(e -> {
             String studentId = studentIdField.getText();
             String courseId = courseIdForStudentField.getText();
