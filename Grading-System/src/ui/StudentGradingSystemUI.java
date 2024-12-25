@@ -12,11 +12,19 @@ import javafx.stage.Stage;
 
 public class StudentGradingSystemUI extends Application {
 
+    private static final String ACCESS_PIN = "1234";  // pin for user login
+
     private StudentService studentService = new StudentService();
     private CourseService courseService = new CourseService();
 
     @Override
     public void start(Stage primaryStage) {
+
+        // User authentication page
+        if (!showLoginScreen(primaryStage)) {
+            return;  // If authentication fails, exit the application
+        }
+
         primaryStage.setTitle("Student Grading System");
 
         BorderPane mainLayout = new BorderPane();
@@ -34,10 +42,33 @@ public class StudentGradingSystemUI extends Application {
         mainLayout.setCenter(tabPane);
 
         // Scene setup
-        Scene scene = new Scene(mainLayout, 800, 600);
+        Scene scene = new Scene(mainLayout, 800, 650);
         scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    // Login Page
+    private boolean showLoginScreen(Stage primaryStage) {
+        // Create the login dialog
+        TextInputDialog pinDialog = new TextInputDialog();
+        pinDialog.setTitle("Login");
+        pinDialog.setHeaderText("Please enter the PIN to continue:");
+        pinDialog.setContentText("PIN:");
+
+        // Show the dialog and capture the result
+        String enteredPin = pinDialog.showAndWait().orElse("");
+
+        if (enteredPin.equals(ACCESS_PIN)) {
+            return true;  // Successful authentication
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Authentication Failed");
+            alert.setHeaderText("Incorrect PIN");
+            alert.setContentText("Please enter the correct PIN to access the system.");
+            alert.showAndWait();
+            return false;  // Authentication failed
+        }
     }
 
     // Create Student Tab
@@ -95,7 +126,7 @@ public class StudentGradingSystemUI extends Application {
         listStudentsButton.setOnAction(e -> {
             StringBuilder sb = new StringBuilder();
             for (Student student : studentService.getAllStudents().values()) {
-                sb.append(student.toString());  
+                sb.append(student.toString());
                 sb.append("\n");
             }
 
@@ -180,30 +211,47 @@ public class StudentGradingSystemUI extends Application {
                 assignCourseButton
         );
 
-        // Assign Grade Section
-        TextField gradeField = new TextField();
-        gradeField.setPromptText("Grade");
-        gradeField.getStyleClass().add("input-field"); 
+        // Add fields for midterm, endterm, and project grades
+        TextField midtermGradeField = new TextField();
+        midtermGradeField.setPromptText("Midterm Grade");
+        midtermGradeField.getStyleClass().add("input-field");
 
-        Button assignGradeButton = new Button("Assign Grade");
+        TextField endtermGradeField = new TextField();
+        endtermGradeField.setPromptText("Endterm Grade");
+        endtermGradeField.getStyleClass().add("input-field");
+
+        TextField projectGradeField = new TextField();
+        projectGradeField.setPromptText("Project Grade");
+        projectGradeField.getStyleClass().add("input-field");
+
+        Button assignGradeButton = new Button("Assign Grades");
         assignGradeButton.getStyleClass().add("button"); 
         assignGradeButton.setOnAction(e -> {
             String studentId = studentIdField.getText();
             String courseId = courseIdForStudentField.getText();
-            double grade = Double.parseDouble(gradeField.getText());
-            Student student = studentService.findStudentById(studentId);
-            Course course = courseService.getCourseById(courseId);
-            if (student != null && course != null) {
-                courseService.assignGradeToCourse(student, course, grade);
-                showAlert("Success", "Grade assigned successfully!");
-            } else {
-                showAlert("Error", "Student or Course not found.");
+            try {
+                double midtermGrade = Double.parseDouble(midtermGradeField.getText());
+                double endtermGrade = Double.parseDouble(endtermGradeField.getText());
+                double projectGrade = Double.parseDouble(projectGradeField.getText());
+                Student student = studentService.findStudentById(studentId);
+                Course course = courseService.getCourseById(courseId);
+                if (student != null && course != null) {
+                    // Assign grades to course
+                    courseService.assignGradeToCourse(student, course, midtermGrade, endtermGrade, projectGrade);
+                    showAlert("Success", "Grades assigned successfully!");
+                } else {
+                    showAlert("Error", "Student or Course not found.");
+                }
+            } catch (NumberFormatException ex) {
+                showAlert("Error", "Please enter valid grades.");
             }
         });
 
         courseLayout.getChildren().addAll(
-                new Label("Assign Grade:"),
-                gradeField,
+                new Label("Assign Grades:"),
+                midtermGradeField,
+                endtermGradeField,
+                projectGradeField,
                 assignGradeButton
         );
 

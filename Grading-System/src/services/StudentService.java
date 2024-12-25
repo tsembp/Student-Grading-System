@@ -26,4 +26,9 @@ public class StudentService {
     public Map<String, Student> getAllStudents() {
         return students;
     }
+
+    // Update student information
+    public void updateStudent(Student student){
+        students.put(student.getId(), student);
+    }
 }

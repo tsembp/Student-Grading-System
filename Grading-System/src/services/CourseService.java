@@ -2,6 +2,7 @@ package services;
 
 import models.Course;
 import models.Student;
+import models.Grade;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,13 +24,14 @@ public class CourseService {
         return courses.get(courseId);
     }
 
-    public void assignGradeToCourse(Student student, Course course, double grade) {
+    // Assign grades to a student for a course (midterm, end-term, project)
+    public void assignGradeToCourse(Student student, Course course, double midtermGrade, double endTermGrade, double projectGrade) {
         // Check if the student is already enrolled in the course
         if (student.getCourses().contains(course)) {
-            course.assignGrade(student, grade);  // Assuming Course has a method to assign grades
+            Grade grade = new Grade(midtermGrade, endTermGrade, projectGrade);
+            course.assignGrade(student, grade);  // Assuming Course has a method to assign the Grade object
         } else {
-            System.out.println("Student not enrolled in this course.");
+            System.out.println("Student with ID '" + student.getId() + "' not enrolled in this course.");
         }
     }
-    
 }

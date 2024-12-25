@@ -1,53 +1,44 @@
 package models;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Course {
 
     private String name;
     private String courseId;
-    private List<Student> students;
-    private List<Double> grades;
+    private Map<Student, Grade> studentGrades;
 
     public Course(String name, String courseId) {
         this.name = name;
         this.courseId = courseId;
-        this.students = new ArrayList<>();
-        this.grades = new ArrayList<>();
+        this.studentGrades = new HashMap<>();
     }
 
     public void addStudent(Student student) {
-        if (!students.contains(student)) {
-            students.add(student);
-            grades.add(-1.0);  // Add a default grade for the student
+        if (!studentGrades.containsKey(student)) {
+            studentGrades.put(student, new Grade(0.0, 0.0, 0.0));  // default grades for exams and project
         }
     }
 
-    public void assignGrade(Student student, double grade) {
-        int index = students.indexOf(student);
-        if (index != -1) {
-            grades.set(index, grade);
+    public void assignGrade(Student student, Grade grade) {
+        if (studentGrades.containsKey(student)) {
+            studentGrades.put(student, grade);
         } else {
-            System.out.println("Student not enrolled in this course.");
+            System.out.println("Student with ID: '" + student.getId() + "' not enrolled in this course.");
         }
     }
 
-    public double getGradeForStudent(Student student) {
-        int index = students.indexOf(student);
-        return index != -1 ? grades.get(index) : -1;
+    public Grade getGradeForStudent(Student student) {
+        return studentGrades.getOrDefault(student, null);
     }
 
     public String getCourseId() {
         return courseId;
     }
 
-    public List<Student> getStudents() {
-        return students;
-    }
-
-    public List<Double> getGrades() {
-        return grades;
+    public Map<Student, Grade> getStudentGrades() {
+        return studentGrades;
     }
 
     public String getName() {
