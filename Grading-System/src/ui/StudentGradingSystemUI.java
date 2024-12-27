@@ -6,6 +6,7 @@ import services.StudentService;
 import services.CourseService;
 import javafx.application.Application;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
@@ -24,9 +25,9 @@ public class StudentGradingSystemUI extends Application {
     public void start(Stage primaryStage) {
 
         // User authentication page
-        if (!showLoginScreen(primaryStage)) {
-            return;  // If authentication fails, exit the application
-        }
+        // if (!showLoginScreen(primaryStage)) {
+        //     return;  // If authentication fails, exit the application
+        // }
 
         primaryStage.setTitle("Student Grading System");
 
@@ -210,25 +211,30 @@ public class StudentGradingSystemUI extends Application {
         studentLayout.getChildren().clear();
     
         // Add return button to go back to search section
-        Button returnButton = new Button("Back");
-        returnButton.setStyle("-fx-background-color: transparent; -fx-text-fill: black; -fx-underline: true;");
-        returnButton.setOnAction(_ -> {
+        Text returnText = new Text("Back");
+        returnText.setStyle("-fx-background-color: transparent; -fx-text-fill: black; -fx-underline: true;");
+        HBox returnButtonContainer = new HBox(returnText);
+        returnButtonContainer.setCursor(Cursor.HAND);
+        returnButtonContainer.setAlignment(Pos.CENTER_LEFT);
+        returnButtonContainer.setOnMouseClicked(_ -> {
             // Clear the current student options and show the search section again
             studentLayout.getChildren().clear();
             studentLayout.getChildren().addAll(idField, addStudentButton);
         });
-    
-        studentLayout.getChildren().add(returnButton);
+
+        studentLayout.getChildren().add(returnButtonContainer);
+
     
         // Show student info
         Text studentInfo = new Text("Student: " + student.getFirstName() + " " + student.getLastName() + " (ID: " + student.getId() + ")");
+        studentInfo.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
         studentLayout.getChildren().add(studentInfo);
     
         // Section for updating student info (Name, ID, Class)
         TextField firstNameField = new TextField(student.getFirstName());
         firstNameField.setPromptText("First Name");
 
-        TextField lastNameField = new TextField(student.getFirstName());
+        TextField lastNameField = new TextField(student.getLastName());
         lastNameField.setPromptText("Last Name");
     
         TextField idField2 = new TextField(student.getId());
@@ -314,6 +320,12 @@ public class StudentGradingSystemUI extends Application {
         VBox courseLayout = new VBox(10);
         courseLayout.setStyle("-fx-padding: 10;");
 
+        // Add Labels
+        Label addCourseLabel = new Label("Enter New Course's Details:");
+        addCourseLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        Label addCourseStudentLabel = new Label("Enroll Student to Course:");
+        addCourseStudentLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
         // Add Course Section
         TextField courseNameField = new TextField();
         courseNameField.setPromptText("Course Name");
@@ -321,24 +333,34 @@ public class StudentGradingSystemUI extends Application {
         TextField courseIdField = new TextField();
         courseIdField.setPromptText("Course ID");
         courseIdField.getStyleClass().add("input-field");
+        TextField creditHoursField = new TextField();
+        creditHoursField.setPromptText("Credit Hours");
+        creditHoursField.getStyleClass().add("input-field");
 
         Button addCourseButton = new Button("Add Course");
         addCourseButton.getStyleClass().add("button");
-        addCourseButton.setOnAction(e -> {
+        addCourseButton.setOnAction(_ -> {
             String name = courseNameField.getText();
             String id = courseIdField.getText();
-            if (!name.isEmpty() && !id.isEmpty()) {
-                courseService.createCourse(name, id);
-                showAlert("Success", "Course added successfully!");
-                courseNameField.clear();
-                courseIdField.clear();
+            String creditHours = creditHoursField.getText();
+            if (!name.isEmpty() && !id.isEmpty() && !creditHours.isEmpty()) {
+                try {
+                    int creditHoursInt = Integer.parseInt(creditHours);
+                    courseService.createCourse(name, id, creditHoursInt);
+                    showAlert("Success", "Course added successfully!");
+                    courseNameField.clear();
+                    courseIdField.clear();
+                    creditHoursField.clear();
+                } catch (NumberFormatException ex) {
+                    showAlert("Error", "Credit Hours must be a valid number.");
+                }
             } else {
                 showAlert("Error", "Please fill in all fields.");
             }
         });
 
         courseLayout.getChildren().addAll(
-                new Label("Add Course:"),
+                addCourseLabel,
                 courseNameField,
                 courseIdField,
                 addCourseButton
@@ -368,55 +390,55 @@ public class StudentGradingSystemUI extends Application {
         });
 
         courseLayout.getChildren().addAll(
-                new Label("Assign Course to Student:"),
+                addCourseStudentLabel,
                 studentIdField,
                 courseIdForStudentField,
                 assignCourseButton
         );
 
-        // Add fields for midterm, endterm, and project grades
-        TextField midtermGradeField = new TextField();
-        midtermGradeField.setPromptText("Midterm Grade");
-        midtermGradeField.getStyleClass().add("input-field");
+        // // Add fields for midterm, endterm, and project grades
+        // TextField midtermGradeField = new TextField();
+        // midtermGradeField.setPromptText("Midterm Grade");
+        // midtermGradeField.getStyleClass().add("input-field");
 
-        TextField endtermGradeField = new TextField();
-        endtermGradeField.setPromptText("Endterm Grade");
-        endtermGradeField.getStyleClass().add("input-field");
+        // TextField endtermGradeField = new TextField();
+        // endtermGradeField.setPromptText("Endterm Grade");
+        // endtermGradeField.getStyleClass().add("input-field");
 
-        TextField projectGradeField = new TextField();
-        projectGradeField.setPromptText("Project Grade");
-        projectGradeField.getStyleClass().add("input-field");
+        // TextField projectGradeField = new TextField();
+        // projectGradeField.setPromptText("Project Grade");
+        // projectGradeField.getStyleClass().add("input-field");
 
-        Button assignGradeButton = new Button("Assign Grades");
-        assignGradeButton.getStyleClass().add("button"); 
-        assignGradeButton.setOnAction(e -> {
-            String studentId = studentIdField.getText();
-            String courseId = courseIdForStudentField.getText();
-            try {
-                double midtermGrade = Double.parseDouble(midtermGradeField.getText());
-                double endtermGrade = Double.parseDouble(endtermGradeField.getText());
-                double projectGrade = Double.parseDouble(projectGradeField.getText());
-                Student student = studentService.findStudentById(studentId);
-                Course course = courseService.getCourseById(courseId);
-                if (student != null && course != null) {
-                    // Assign grades to course
-                    courseService.assignGradeToCourse(student, course, midtermGrade, endtermGrade, projectGrade);
-                    showAlert("Success", "Grades assigned successfully!");
-                } else {
-                    showAlert("Error", "Student or Course not found.");
-                }
-            } catch (NumberFormatException ex) {
-                showAlert("Error", "Please enter valid grades.");
-            }
-        });
+        // Button assignGradeButton = new Button("Assign Grades");
+        // assignGradeButton.getStyleClass().add("button"); 
+        // assignGradeButton.setOnAction(e -> {
+        //     String studentId = studentIdField.getText();
+        //     String courseId = courseIdForStudentField.getText();
+        //     try {
+        //         double midtermGrade = Double.parseDouble(midtermGradeField.getText());
+        //         double endtermGrade = Double.parseDouble(endtermGradeField.getText());
+        //         double projectGrade = Double.parseDouble(projectGradeField.getText());
+        //         Student student = studentService.findStudentById(studentId);
+        //         Course course = courseService.getCourseById(courseId);
+        //         if (student != null && course != null) {
+        //             // Assign grades to course
+        //             courseService.assignGradeToCourse(student, course, midtermGrade, endtermGrade, projectGrade);
+        //             showAlert("Success", "Grades assigned successfully!");
+        //         } else {
+        //             showAlert("Error", "Student or Course not found.");
+        //         }
+        //     } catch (NumberFormatException ex) {
+        //         showAlert("Error", "Please enter valid grades.");
+        //     }
+        // });
 
-        courseLayout.getChildren().addAll(
-                new Label("Assign Grades:"),
-                midtermGradeField,
-                endtermGradeField,
-                projectGradeField,
-                assignGradeButton
-        );
+        // courseLayout.getChildren().addAll(
+        //         new Label("Assign Grades:"),
+        //         midtermGradeField,
+        //         endtermGradeField,
+        //         projectGradeField,
+        //         assignGradeButton
+        // );
 
         courseTab.setContent(courseLayout);
         return courseTab;

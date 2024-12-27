@@ -15,8 +15,8 @@ public class CourseService {
     }
 
     // Create a course and add it to the system
-    public void createCourse(String name, String courseId) {
-        courses.put(courseId, new Course(name, courseId));
+    public void createCourse(String name, String courseId, int creditHours) {
+        courses.put(courseId, new Course(name, courseId, creditHours));
     }
 
     // Get a course by ID

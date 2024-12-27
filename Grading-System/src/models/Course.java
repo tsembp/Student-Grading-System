@@ -7,11 +7,13 @@ public class Course {
 
     private String name;
     private String courseId;
+    private int creditHours;
     private Map<Student, Grade> studentGrades;
 
-    public Course(String name, String courseId) {
+    public Course(String name, String courseId, int creditHours) {
         this.name = name;
         this.courseId = courseId;
+        this.creditHours = creditHours;
         this.studentGrades = new HashMap<>();
     }
 
@@ -31,6 +33,10 @@ public class Course {
 
     public Grade getGradeForStudent(Student student) {
         return studentGrades.getOrDefault(student, null);
+    }
+
+    public int getCreditHours() {
+        return creditHours;
     }
 
     public String getCourseId() {
