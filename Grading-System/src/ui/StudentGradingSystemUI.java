@@ -90,9 +90,12 @@ public class StudentGradingSystemUI extends Application {
         listLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
         // Add Student Section
-        TextField nameField = new TextField();
-        nameField.setPromptText("Name");
-        nameField.getStyleClass().add("input-field"); 
+        TextField firstNameTextField = new TextField();
+        firstNameTextField.setPromptText("First Name");
+        firstNameTextField.getStyleClass().add("input-field");
+        TextField lastNameTextField = new TextField();
+        lastNameTextField.setPromptText("Last Name");
+        lastNameTextField.getStyleClass().add("input-field"); 
         TextField idField = new TextField();
         idField.setPromptText("ID");
         idField.getStyleClass().add("input-field"); 
@@ -102,13 +105,15 @@ public class StudentGradingSystemUI extends Application {
 
         Button addStudentButton = new Button("Add Student");
         addStudentButton.getStyleClass().add("button");
-        addStudentButton.setOnAction(e -> {
-            String name = nameField.getText();
+        addStudentButton.setOnAction(_ -> {
+            String firstName = firstNameTextField.getText();
+            String lastName = lastNameTextField.getText();
             String id = idField.getText();
             String className = classField.getText();
-            if (!name.isEmpty() && !id.isEmpty() && !className.isEmpty()) {
-                studentService.addStudent(new Student(name, id, className));
-                nameField.clear();
+            if (!firstName.isEmpty() && !lastName.isEmpty() && !id.isEmpty() && !className.isEmpty()) {
+                studentService.addStudent(new Student(firstName, lastName, id, className));
+                firstNameTextField.clear();
+                lastNameTextField.clear();
                 idField.clear();
                 classField.clear();
                 showAlert("Success", "Student added successfully!");
@@ -119,7 +124,8 @@ public class StudentGradingSystemUI extends Application {
 
         studentLayout.getChildren().addAll(
                 addLabel,
-                nameField,
+                firstNameTextField,
+                lastNameTextField,
                 idField,
                 classField,
                 addStudentButton
@@ -133,7 +139,7 @@ public class StudentGradingSystemUI extends Application {
         studentListArea.getStyleClass().add("textarea"); 
 
         // List Students Section
-        listStudentsButton.setOnAction(e -> {
+        listStudentsButton.setOnAction(_ -> {
             StringBuilder sb = new StringBuilder();
             if(studentService.getAllStudents().isEmpty()) {
                 sb.append("No students in the system.");
@@ -157,6 +163,7 @@ public class StudentGradingSystemUI extends Application {
         return studentTab;
     }
 
+    // Student Edit/Delete Operations Tab
     private Tab manageStudentTab() {
         Tab studentTab = new Tab("Manage Students");
         studentTab.setClosable(false);
@@ -175,7 +182,7 @@ public class StudentGradingSystemUI extends Application {
     
         Button addStudentButton = new Button("Search Student");
         addStudentButton.getStyleClass().add("button");
-        addStudentButton.setOnAction(e -> {
+        addStudentButton.setOnAction(_ -> {
             String id = idField.getText();
             if (!id.isEmpty()) {
                 Student student = studentService.findStudentById(id);
@@ -197,6 +204,7 @@ public class StudentGradingSystemUI extends Application {
         return studentTab;
     }
     
+    // Helper for displaying student options
     private void displayStudentOptions(VBox studentLayout, Student student, TextField idField, Button addStudentButton) {
         // Clear previous content
         studentLayout.getChildren().clear();
@@ -204,7 +212,7 @@ public class StudentGradingSystemUI extends Application {
         // Add return button to go back to search section
         Button returnButton = new Button("Back");
         returnButton.setStyle("-fx-background-color: transparent; -fx-text-fill: black; -fx-underline: true;");
-        returnButton.setOnAction(e -> {
+        returnButton.setOnAction(_ -> {
             // Clear the current student options and show the search section again
             studentLayout.getChildren().clear();
             studentLayout.getChildren().addAll(idField, addStudentButton);
@@ -213,12 +221,15 @@ public class StudentGradingSystemUI extends Application {
         studentLayout.getChildren().add(returnButton);
     
         // Show student info
-        Text studentInfo = new Text("Student: " + student.getName() + " (ID: " + student.getId() + ")");
+        Text studentInfo = new Text("Student: " + student.getFirstName() + " " + student.getLastName() + " (ID: " + student.getId() + ")");
         studentLayout.getChildren().add(studentInfo);
     
         // Section for updating student info (Name, ID, Class)
-        TextField nameField = new TextField(student.getName());
-        nameField.setPromptText("Name");
+        TextField firstNameField = new TextField(student.getFirstName());
+        firstNameField.setPromptText("First Name");
+
+        TextField lastNameField = new TextField(student.getFirstName());
+        lastNameField.setPromptText("Last Name");
     
         TextField idField2 = new TextField(student.getId());
         idField2.setPromptText("ID");
@@ -228,15 +239,16 @@ public class StudentGradingSystemUI extends Application {
     
         Button saveButton = new Button("Save");
         saveButton.setStyle("-fx-background-color: green; -fx-text-fill: white;");
-        saveButton.setOnAction(e -> {
-            student.setName(nameField.getText());
+        saveButton.setOnAction(_ -> {
+            student.setFirstName(firstNameField.getText());
+            student.setLastName(lastNameField.getText());
             student.setId(idField2.getText());
             student.setClassName(classField.getText());
             studentService.updateStudent(student);
             showAlert("Success", "Student information updated.");
         });
     
-        VBox updateSection = new VBox(5, nameField, idField2, classField, saveButton);
+        VBox updateSection = new VBox(5, firstNameField, lastNameField, idField2, classField, saveButton);
         studentLayout.getChildren().add(updateSection);
     
         // Section for adding/removing courses
@@ -257,7 +269,7 @@ public class StudentGradingSystemUI extends Application {
                 Button removeCourseButton = new Button("❌");
                 removeCourseButton.setStyle("-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 14px; -fx-padding: 0;");
                 removeCourseButton.setPrefSize(20, 20);  // Set size for the red X button
-                removeCourseButton.setOnAction(e -> {
+                removeCourseButton.setOnAction(_ -> {
                     student.getCourses().remove(course); // Remove course from student's courses list
                     studentService.updateStudent(student); // Update student record
                     displayStudentOptions(studentLayout, student, idField, addStudentButton); // Refresh the course list
@@ -279,7 +291,7 @@ public class StudentGradingSystemUI extends Application {
         // Delete student button (at the very bottom)
         Button deleteButton = new Button("Delete Student");
         deleteButton.setStyle("-fx-background-color: red; -fx-text-fill: white;");
-        deleteButton.setOnAction(e -> {
+        deleteButton.setOnAction(_ -> {
             studentService.deleteStudent(student.getId());
             studentLayout.getChildren().clear();
             studentLayout.getChildren().clear();
@@ -292,11 +304,6 @@ public class StudentGradingSystemUI extends Application {
     
         // Add the container to the layout
         studentLayout.getChildren().add(buttonContainer);
-    }
-    
-    private void manageCourses(Student student) {
-        // Implement the logic for adding/removing courses for the student
-        System.out.println("Manage courses for " + student.getName());
     }
     
     // Create Course Tab
@@ -415,6 +422,7 @@ public class StudentGradingSystemUI extends Application {
         return courseTab;
     }
 
+    // Alert box
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
