@@ -5,9 +5,12 @@ import models.Course;
 import services.StudentService;
 import services.CourseService;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class StudentGradingSystemUI extends Application {
@@ -38,7 +41,7 @@ public class StudentGradingSystemUI extends Application {
 
         // Center: Tabs for Students and Courses
         TabPane tabPane = new TabPane();
-        tabPane.getTabs().addAll(createStudentTab(), createCourseTab());
+        tabPane.getTabs().addAll(createStudentTab(), createCourseTab(), manageStudentTab());
         mainLayout.setCenter(tabPane);
 
         // Scene setup
@@ -73,11 +76,18 @@ public class StudentGradingSystemUI extends Application {
 
     // Create Student Tab
     private Tab createStudentTab() {
-        Tab studentTab = new Tab("Manage Students");
+        Tab studentTab = new Tab("Add Students");
         studentTab.setClosable(false);
 
         VBox studentLayout = new VBox(10);
         studentLayout.setStyle("-fx-padding: 10;");
+
+        // Add Labels
+        Label addLabel = new Label("Enter Student's Details to Add:");
+        addLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        Label listLabel = new Label("List of Students:");
+        listLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
         // Add Student Section
         TextField nameField = new TextField();
@@ -108,7 +118,7 @@ public class StudentGradingSystemUI extends Application {
         });
 
         studentLayout.getChildren().addAll(
-                new Label("Add Student:"),
+                addLabel,
                 nameField,
                 idField,
                 classField,
@@ -116,7 +126,7 @@ public class StudentGradingSystemUI extends Application {
         );
 
         // List Students Section
-        Button listStudentsButton = new Button("List Students");
+        Button listStudentsButton = new Button("View");
         listStudentsButton.getStyleClass().add("button"); 
         TextArea studentListArea = new TextArea();
         studentListArea.setEditable(false);
@@ -125,16 +135,20 @@ public class StudentGradingSystemUI extends Application {
         // List Students Section
         listStudentsButton.setOnAction(e -> {
             StringBuilder sb = new StringBuilder();
-            for (Student student : studentService.getAllStudents().values()) {
-                sb.append(student.toString());
-                sb.append("\n");
+            if(studentService.getAllStudents().isEmpty()) {
+                sb.append("No students in the system.");
+            } else{
+                for (Student student : studentService.getAllStudents().values()) {
+                    sb.append(student.toString());
+                    sb.append("\n");
+                }
             }
 
             studentListArea.setText(sb.toString());
         });
 
         studentLayout.getChildren().addAll(
-                new Label("Students:"),
+                listLabel,
                 listStudentsButton,
                 studentListArea
         );
@@ -143,6 +157,144 @@ public class StudentGradingSystemUI extends Application {
         return studentTab;
     }
 
+    private Tab manageStudentTab() {
+        Tab studentTab = new Tab("Manage Students");
+        studentTab.setClosable(false);
+    
+        VBox studentLayout = new VBox(10);
+        studentLayout.setStyle("-fx-padding: 10;");
+    
+        // Add Label above the input field
+        Label searchLabel = new Label("Enter Student ID to Search:");
+        searchLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+    
+        // Add Student Section
+        TextField idField = new TextField();
+        idField.setPromptText("ID");
+        idField.getStyleClass().add("input-field");
+    
+        Button addStudentButton = new Button("Search Student");
+        addStudentButton.getStyleClass().add("button");
+        addStudentButton.setOnAction(e -> {
+            String id = idField.getText();
+            if (!id.isEmpty()) {
+                Student student = studentService.findStudentById(id);
+                if (student != null) {
+                    displayStudentOptions(studentLayout, student, idField, addStudentButton);
+                } else {
+                    showAlert("Error", "Student not found.");
+                }
+    
+                idField.clear();
+            } else {
+                showAlert("Error", "Please fill in all fields.");
+            }
+        });
+    
+        // Add label and input field to the layout
+        studentLayout.getChildren().addAll(searchLabel, idField, addStudentButton);
+        studentTab.setContent(studentLayout);
+        return studentTab;
+    }
+    
+    private void displayStudentOptions(VBox studentLayout, Student student, TextField idField, Button addStudentButton) {
+        // Clear previous content
+        studentLayout.getChildren().clear();
+    
+        // Add return button to go back to search section
+        Button returnButton = new Button("Back");
+        returnButton.setStyle("-fx-background-color: transparent; -fx-text-fill: black; -fx-underline: true;");
+        returnButton.setOnAction(e -> {
+            // Clear the current student options and show the search section again
+            studentLayout.getChildren().clear();
+            studentLayout.getChildren().addAll(idField, addStudentButton);
+        });
+    
+        studentLayout.getChildren().add(returnButton);
+    
+        // Show student info
+        Text studentInfo = new Text("Student: " + student.getName() + " (ID: " + student.getId() + ")");
+        studentLayout.getChildren().add(studentInfo);
+    
+        // Section for updating student info (Name, ID, Class)
+        TextField nameField = new TextField(student.getName());
+        nameField.setPromptText("Name");
+    
+        TextField idField2 = new TextField(student.getId());
+        idField2.setPromptText("ID");
+    
+        TextField classField = new TextField(student.getClassName());
+        classField.setPromptText("Class");
+    
+        Button saveButton = new Button("Save");
+        saveButton.setStyle("-fx-background-color: green; -fx-text-fill: white;");
+        saveButton.setOnAction(e -> {
+            student.setName(nameField.getText());
+            student.setId(idField2.getText());
+            student.setClassName(classField.getText());
+            studentService.updateStudent(student);
+            showAlert("Success", "Student information updated.");
+        });
+    
+        VBox updateSection = new VBox(5, nameField, idField2, classField, saveButton);
+        studentLayout.getChildren().add(updateSection);
+    
+        // Section for adding/removing courses
+        VBox coursesSection = new VBox(5);
+        Text coursesTitle = new Text("Courses:");
+        coursesSection.getChildren().add(coursesTitle);
+
+        // For each course, display the course name with a red X for removal
+        for (Course course : student.getCourses()) {
+            HBox courseRow = new HBox(10); // Align course and button horizontally
+            Text courseId = new Text(course.getCourseId());
+            Text courseName = new Text(course.getName());
+
+            // Red X button for course removal
+            Button removeCourseButton = new Button("❌");
+            removeCourseButton.setStyle("-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 14px; -fx-padding: 0;");
+            removeCourseButton.setPrefSize(20, 20);  // Set size for the red X button
+            removeCourseButton.setOnAction(e -> {
+                student.getCourses().remove(course); // Remove course from student's courses list
+                studentService.updateStudent(student); // Update student record
+                displayStudentOptions(studentLayout, student, idField, addStudentButton); // Refresh the course list
+            });
+
+            // Add the "X" button to the left of the course name
+            HBox.setHgrow(removeCourseButton, Priority.ALWAYS);
+            courseRow.getChildren().addAll(removeCourseButton, courseId, courseName);
+            coursesSection.getChildren().add(courseRow);
+        }
+
+        studentLayout.getChildren().add(coursesSection);
+    
+        // Create a VBox to hold the delete button
+        VBox buttonContainer = new VBox();
+        buttonContainer.setAlignment(Pos.BOTTOM_CENTER);  // Align the button to the bottom center
+    
+        // Delete student button (at the very bottom)
+        Button deleteButton = new Button("Delete Student");
+        deleteButton.setStyle("-fx-background-color: red; -fx-text-fill: white;");
+        deleteButton.setOnAction(e -> {
+            studentService.deleteStudent(student.getId());
+            studentLayout.getChildren().clear();
+            studentLayout.getChildren().clear();
+            studentLayout.getChildren().addAll(idField, addStudentButton);
+            showAlert("Success", "Student deleted successfully.");
+        });
+    
+        // Add the button to the container
+        buttonContainer.getChildren().add(deleteButton);
+    
+        // Add the container to the layout
+        studentLayout.getChildren().add(buttonContainer);
+    }
+    
+    private void manageCourses(Student student) {
+        // Implement the logic for adding/removing courses for the student
+        System.out.println("Manage courses for " + student.getName());
+    }
+    
     // Create Course Tab
     private Tab createCourseTab() {
         Tab courseTab = new Tab("Manage Courses");

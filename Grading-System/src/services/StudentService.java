@@ -17,6 +17,10 @@ public class StudentService {
         students.put(student.getId(), student);
     }
 
+    public void deleteStudent(String studentId) {
+        students.remove(studentId);
+    }
+
     // Find a student by ID
     public Student findStudentById(String studentId) {
         return students.get(studentId);
@@ -31,4 +35,5 @@ public class StudentService {
     public void updateStudent(Student student){
         students.put(student.getId(), student);
     }
+
 }
