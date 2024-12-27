@@ -244,33 +244,37 @@ public class StudentGradingSystemUI extends Application {
         Text coursesTitle = new Text("Courses:");
         coursesSection.getChildren().add(coursesTitle);
 
-        // For each course, display the course name with a red X for removal
-        for (Course course : student.getCourses()) {
-            HBox courseRow = new HBox(10); // Align course and button horizontally
-            Text courseId = new Text(course.getCourseId());
-            Text courseName = new Text(course.getName());
+        if(student.getCourses().isEmpty()){
+            Text noCourses = new Text("No courses assigned.");
+            coursesSection.getChildren().add(noCourses);
+        } else{
+            for (Course course : student.getCourses()) {
+                HBox courseRow = new HBox(10); // Align course and button horizontally
+                Text courseId = new Text(course.getCourseId());
+                Text courseName = new Text(course.getName());
 
-            // Red X button for course removal
-            Button removeCourseButton = new Button("❌");
-            removeCourseButton.setStyle("-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 14px; -fx-padding: 0;");
-            removeCourseButton.setPrefSize(20, 20);  // Set size for the red X button
-            removeCourseButton.setOnAction(e -> {
-                student.getCourses().remove(course); // Remove course from student's courses list
-                studentService.updateStudent(student); // Update student record
-                displayStudentOptions(studentLayout, student, idField, addStudentButton); // Refresh the course list
-            });
+                // Red X button for course removal
+                Button removeCourseButton = new Button("❌");
+                removeCourseButton.setStyle("-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 14px; -fx-padding: 0;");
+                removeCourseButton.setPrefSize(20, 20);  // Set size for the red X button
+                removeCourseButton.setOnAction(e -> {
+                    student.getCourses().remove(course); // Remove course from student's courses list
+                    studentService.updateStudent(student); // Update student record
+                    displayStudentOptions(studentLayout, student, idField, addStudentButton); // Refresh the course list
+                });
 
-            // Add the "X" button to the left of the course name
-            HBox.setHgrow(removeCourseButton, Priority.ALWAYS);
-            courseRow.getChildren().addAll(removeCourseButton, courseId, courseName);
-            coursesSection.getChildren().add(courseRow);
+                // Add the "X" button to the left of the course name
+                HBox.setHgrow(removeCourseButton, Priority.ALWAYS);
+                courseRow.getChildren().addAll(removeCourseButton, courseId, courseName);
+                coursesSection.getChildren().add(courseRow);
+            }
         }
 
         studentLayout.getChildren().add(coursesSection);
     
         // Create a VBox to hold the delete button
         VBox buttonContainer = new VBox();
-        buttonContainer.setAlignment(Pos.BOTTOM_CENTER);  // Align the button to the bottom center
+        buttonContainer.setAlignment(Pos.BOTTOM_CENTER);
     
         // Delete student button (at the very bottom)
         Button deleteButton = new Button("Delete Student");
