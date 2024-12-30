@@ -2,9 +2,11 @@ package ui;
 
 import models.Student;
 import models.Course;
+import models.Grade;
 import services.StudentService;
 import services.CourseService;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -13,6 +15,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class StudentGradingSystemUI extends Application {
 
@@ -21,6 +25,36 @@ public class StudentGradingSystemUI extends Application {
     private StudentService studentService = new StudentService();
     private CourseService courseService = new CourseService();
 
+    private void initializeTestData() {
+        // Create students
+        Student student1 = new Student("Panagiotis", "Tsembekis", "1114964", "G33");
+        Student student2 = new Student("Rafaela", "Mavroudi", "1114963", "G34");
+    
+        // Add students to the system
+        studentService.addStudent(student1);
+        studentService.addStudent(student2);
+    
+        // Create courses
+        Course mutualCourse = new Course("Statistics", "MAS055", 7.0);
+        Course student1Course = new Course("DSA in Java", "EPL231", 7.5);
+        Course student2Course = new Course("Computer Organization", "EPL221", 5.0);
+    
+        // Add courses to the system
+        courseService.createCourse(mutualCourse.getName(), mutualCourse.getCourseId(), mutualCourse.getCreditHours());
+        courseService.createCourse(student1Course.getName(), student1Course.getCourseId(), student1Course.getCreditHours());
+        courseService.createCourse(student2Course.getName(), student2Course.getCourseId(), student2Course.getCreditHours());
+    
+        // Assign courses to students
+        student1.addCourse(mutualCourse);
+        courseService.assignGradeToCourse(student1, mutualCourse, 78, 82, 99);
+        student1.addCourse(student1Course);
+        courseService.assignGradeToCourse(student1, student1Course, 89, 70, 97);
+        student2.addCourse(mutualCourse);
+        courseService.assignGradeToCourse(student2, mutualCourse, 90, 92, 96);
+        student2.addCourse(student2Course);
+        courseService.assignGradeToCourse(student2, student2Course, 75, 88, 100);
+    }
+
     @Override
     public void start(Stage primaryStage) {
 
@@ -28,6 +62,9 @@ public class StudentGradingSystemUI extends Application {
         // if (!showLoginScreen(primaryStage)) {
         //     return;  // If authentication fails, exit the application
         // }
+
+        // Load test data in system
+        initializeTestData();
 
         primaryStage.setTitle("Student Grading System");
 
@@ -257,7 +294,6 @@ public class StudentGradingSystemUI extends Application {
         VBox updateSection = new VBox(5, firstNameField, lastNameField, idField2, classField, saveButton);
         studentLayout.getChildren().add(updateSection);
     
-        // Section for adding/removing courses
         VBox coursesSection = new VBox(5);
         Text coursesTitle = new Text("Courses:");
         coursesSection.getChildren().add(coursesTitle);
@@ -267,23 +303,33 @@ public class StudentGradingSystemUI extends Application {
             coursesSection.getChildren().add(noCourses);
         } else{
             for (Course course : student.getCourses()) {
-                HBox courseRow = new HBox(10); // Align course and button horizontally
+                HBox courseRow = new HBox(10);
                 Text courseId = new Text(course.getCourseId());
                 Text courseName = new Text(course.getName());
 
-                // Red X button for course removal
-                Button removeCourseButton = new Button("❌");
-                removeCourseButton.setStyle("-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 14px; -fx-padding: 0;");
-                removeCourseButton.setPrefSize(20, 20);  // Set size for the red X button
-                removeCourseButton.setOnAction(_ -> {
-                    student.getCourses().remove(course); // Remove course from student's courses list
-                    studentService.updateStudent(student); // Update student record
-                    displayStudentOptions(studentLayout, student, idField, addStudentButton); // Refresh the course list
+                // X button for course removal
+                Image removeImage = new Image("file:C:/Users/panag/Documents/GitHub/Student-Grading-System/assets/removeIcon.png");
+                ImageView removeCourseIcon = new ImageView(removeImage);
+                removeCourseIcon.setFitWidth(20); 
+                removeCourseIcon.setFitHeight(20);
+                removeCourseIcon.setOnMouseClicked(_ -> {
+                    student.getCourses().remove(course);
+                    studentService.updateStudent(student);
+                    displayStudentOptions(studentLayout, student, idField, addStudentButton);
                 });
 
-                // Add the "X" button to the left of the course name
-                HBox.setHgrow(removeCourseButton, Priority.ALWAYS);
-                courseRow.getChildren().addAll(removeCourseButton, courseId, courseName);
+                // Edit button for course editing
+                Image editImage = new Image("file:C:/Users/panag/Documents/GitHub/Student-Grading-System/assets/editIcon.png");
+                ImageView editCourseIcon = new ImageView(editImage);
+                editCourseIcon.setFitWidth(20);
+                editCourseIcon.setFitHeight(20);
+                editCourseIcon.setOnMouseClicked(_ -> {
+                    displayCourseEditBox(course, student, studentLayout, idField, addStudentButton);
+                    studentService.updateStudent(student);
+                    displayStudentOptions(studentLayout, student, idField, addStudentButton);
+                });
+
+                courseRow.getChildren().addAll(removeCourseIcon, editCourseIcon, courseId, courseName);
                 coursesSection.getChildren().add(courseRow);
             }
         }
@@ -311,6 +357,79 @@ public class StudentGradingSystemUI extends Application {
         // Add the container to the layout
         studentLayout.getChildren().add(buttonContainer);
     }
+
+    // Function to open a new window for course editing
+    public void displayCourseEditBox(Course course, Student student, VBox studentLayout, TextField idField, Button addStudentButton) {
+        // Create a new window (Stage) for editing the course
+        Stage editCourseStage = new Stage();
+        editCourseStage.setTitle("Edit Course");
+
+        // Create a form for editing course details
+        VBox editForm = new VBox(10);
+        editForm.setPadding(new Insets(20));
+
+        // Fields to edit the grades
+        Grade studentGrades = course.getGradeForStudent(student);
+        TextField midtermGradeField = new TextField(String.valueOf(studentGrades.getMidtermGrade()));
+        midtermGradeField.setPromptText("Midterm Grade");
+
+        TextField endtermGradeField = new TextField(String.valueOf(studentGrades.getEndTermGrade()));
+        endtermGradeField.setPromptText("End-term Grade");
+
+        TextField projectGradeField = new TextField(String.valueOf(studentGrades.getProjectGrade()));
+        projectGradeField.setPromptText("Project Grade");
+
+        // Button to save the changes
+        Button saveButton = new Button("Save Changes");
+
+        // Button to un-assign the course from the student
+        Button unassignButton = new Button("Un-assign Course");
+
+        // Save button action: Update grades and student record
+        saveButton.setOnAction(_ -> {
+            try {
+                // Update the course details with the new grades
+                studentGrades.setMidtermGrade(Double.parseDouble(midtermGradeField.getText()));
+                studentGrades.setEndTermGrade(Double.parseDouble(endtermGradeField.getText()));
+                studentGrades.setProjectGrade(Double.parseDouble(projectGradeField.getText()));
+
+                // Update the student record with the modified course
+                studentService.updateStudent(student);
+                displayStudentOptions(studentLayout, student, idField, addStudentButton);
+            } catch (NumberFormatException ex) {
+                // Handle invalid input (e.g., non-numeric grades)
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter valid numeric grades.");
+                alert.show();
+            }
+
+            // Close the window after saving
+            editCourseStage.close();
+        });
+
+        // Un-assign button action: Remove course from student's courses
+        unassignButton.setOnAction(_ -> {
+            // Remove the course from the student's list of courses
+            student.getCourses().remove(course);
+
+            // Update the student record after un-assigning the course
+            studentService.updateStudent(student);
+            displayStudentOptions(studentLayout, student, idField, addStudentButton);
+
+            // Close the window after un-assigning the course
+            editCourseStage.close();
+        });
+
+        // Add all form elements to the VBox
+        editForm.getChildren().addAll(midtermGradeField, endtermGradeField, projectGradeField, saveButton, unassignButton);
+
+        // Create a scene for the stage and set it
+        Scene editCourseScene = new Scene(editForm, 300, 250);
+        editCourseStage.setScene(editCourseScene);
+
+        // Show the new window
+        editCourseStage.show();
+    }
+
     
     // Create Course Tab
     private Tab createCourseTab() {
@@ -333,24 +452,24 @@ public class StudentGradingSystemUI extends Application {
         TextField courseIdField = new TextField();
         courseIdField.setPromptText("Course ID");
         courseIdField.getStyleClass().add("input-field");
-        TextField creditHoursField = new TextField();
-        creditHoursField.setPromptText("Credit Hours");
-        creditHoursField.getStyleClass().add("input-field");
+        TextField courseCreditHoursField = new TextField();
+        courseCreditHoursField.setPromptText("Credit Hours");
+        courseCreditHoursField.getStyleClass().add("input-field");
 
         Button addCourseButton = new Button("Add Course");
         addCourseButton.getStyleClass().add("button");
         addCourseButton.setOnAction(_ -> {
             String name = courseNameField.getText();
             String id = courseIdField.getText();
-            String creditHours = creditHoursField.getText();
+            String creditHours = courseCreditHoursField.getText();
             if (!name.isEmpty() && !id.isEmpty() && !creditHours.isEmpty()) {
                 try {
-                    int creditHoursInt = Integer.parseInt(creditHours);
+                    double creditHoursInt = Double.parseDouble(creditHours);
                     courseService.createCourse(name, id, creditHoursInt);
                     showAlert("Success", "Course added successfully!");
                     courseNameField.clear();
                     courseIdField.clear();
-                    creditHoursField.clear();
+                    courseCreditHoursField.clear();
                 } catch (NumberFormatException ex) {
                     showAlert("Error", "Credit Hours must be a valid number.");
                 }
@@ -363,6 +482,7 @@ public class StudentGradingSystemUI extends Application {
                 addCourseLabel,
                 courseNameField,
                 courseIdField,
+                courseCreditHoursField,
                 addCourseButton
         );
 

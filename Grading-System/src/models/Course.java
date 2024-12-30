@@ -7,10 +7,10 @@ public class Course {
 
     private String name;
     private String courseId;
-    private int creditHours;
+    private double creditHours;
     private Map<Student, Grade> studentGrades;
 
-    public Course(String name, String courseId, int creditHours) {
+    public Course(String name, String courseId, double creditHours) {
         this.name = name;
         this.courseId = courseId;
         this.creditHours = creditHours;
@@ -35,7 +35,7 @@ public class Course {
         return studentGrades.getOrDefault(student, null);
     }
 
-    public int getCreditHours() {
+    public double getCreditHours() {
         return creditHours;
     }
 

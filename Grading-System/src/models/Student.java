@@ -68,8 +68,10 @@ public class Student {
         int courseIndex = 1;
         for (Course course : courses) {
             Grade grade = course.getGradeForStudent(this); // get total grade for student 'this'
-            sb.append("[" + courseIndex + "] ");
-            sb.append(course.getName());
+            sb.append(courseIndex + ". ");
+            sb.append("[" + course.getCourseId() + "]");
+            sb.append(" " + course.getName());
+            sb.append(" (" + course.getCreditHours() + " EC)");
             if (grade != null) {
                 sb.append("\t (Midterm: ").append(grade.getMidtermGrade())
                         .append(", End-Term: ").append(grade.getEndTermGrade())
@@ -85,7 +87,7 @@ public class Student {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("ID: ").append(id).append("| Full Name: ").append(firstName).append(" ").append(lastName).append("| Class: ").append(className).append("\n");
+        sb.append("ID: ").append(id).append(" | Full Name: ").append(firstName).append(" ").append(lastName).append(" | Class: ").append(className).append("\n");
 
         if (courses.isEmpty()) {
             sb.append("> Assigned Courses: No enrolled courses.\n");

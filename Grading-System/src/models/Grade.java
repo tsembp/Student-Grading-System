@@ -37,7 +37,7 @@ public class Grade {
     }
 
     public double getFinalGrade() {
-        return (midtermGrade + endTermGrade + projectGrade) / 3;
+        return Math.round((midtermGrade + endTermGrade + projectGrade) / 3 * 100.0) / 100.0;
     }
 
     @Override
