@@ -1,0 +1,10 @@
+⬜: unfinished task  ✅: finished task
+
+DATABASE:
+⬜ grade assign functionality
+⬜ course editing for student (grades)
+✅ add student to database
+✅ update student in database
+✅ assign course for student in database (❗fix printing in text box)
+✅ retrieve list of courses for student from database
+✅ delete student button feature

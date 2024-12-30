@@ -1,17 +1,18 @@
 package ui;
 
+import java.util.ArrayList;
+import java.util.List;
 import models.Student;
 import models.Course;
 import models.Grade;
-import services.StudentService;
-import services.CourseService;
+import services.*;
+import database.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -24,6 +25,9 @@ public class StudentGradingSystemUI extends Application {
 
     private StudentService studentService = new StudentService();
     private CourseService courseService = new CourseService();
+    private StudentServiceDB studentServiceDB = new StudentServiceDB();
+    private CourseServiceDB courseServiceDB = new CourseServiceDB();
+    private GradeServiceDB gradeServiceDB = new GradeServiceDB();
 
     private void initializeTestData() {
         // Create students
@@ -112,7 +116,7 @@ public class StudentGradingSystemUI extends Application {
         }
     }
 
-    // Create Student Tab
+    // Create Student Tab (Database Support)
     private Tab createStudentTab() {
         Tab studentTab = new Tab("Add Students");
         studentTab.setClosable(false);
@@ -149,7 +153,8 @@ public class StudentGradingSystemUI extends Application {
             String id = idField.getText();
             String className = classField.getText();
             if (!firstName.isEmpty() && !lastName.isEmpty() && !id.isEmpty() && !className.isEmpty()) {
-                studentService.addStudent(new Student(firstName, lastName, id, className));
+                // studentService.addStudent(new Student(firstName, lastName, id, className)); // add student (no database)
+                studentServiceDB.addStudent(new Student(firstName, lastName, id, className)); // add student to database
                 firstNameTextField.clear();
                 lastNameTextField.clear();
                 idField.clear();
@@ -179,12 +184,26 @@ public class StudentGradingSystemUI extends Application {
         // List Students Section
         listStudentsButton.setOnAction(_ -> {
             StringBuilder sb = new StringBuilder();
-            if(studentService.getAllStudents().isEmpty()) {
+            // Retrieve students from database
+            if(studentServiceDB.getAllStudents().isEmpty()) {
                 sb.append("No students in the system.");
             } else{
-                for (Student student : studentService.getAllStudents().values()) {
-                    sb.append(student.toString());
-                    sb.append("\n");
+                int index = 1;
+                for (Student student : studentServiceDB.getAllStudents()) {
+                    // 1. Panagiotis Tsembekis (UC1070326) - G33
+                    sb.append(index + ". " + student.getFirstName() + " " + student.getLastName() + " (" + student.getId() + ")" + " - " + student.getClassName() + "\n");
+                    sb.append("📚 Enrolled Courses:\n");
+                    List<Course> studentCourses = studentServiceDB.getCoursesForStudent(student.getId()); // get courses that student is enrolled
+                    // • [EPL231] DSA in Java (7.5 EC)
+                    for(Course course : studentCourses){
+                        sb.append("\t• [" + course.getCourseId() + "] " + course.getName() + " (" + course.getCreditHours() + " EC)\n");
+                        Grade courseGrades = course.getGradeForStudent(student);
+                        if(courseGrades == null){
+                            sb.append("\t\tNo grades assigned.\n");
+                        } else{
+                            sb.append("\t\tProject Grade: " + courseGrades.getProjectGrade() + " | MidTerm Grade: " + courseGrades.getMidtermGrade() + " | EndTerm Grade: " + courseGrades.getEndTermGrade() + "\n");
+                        }
+                    }
                 }
             }
 
@@ -201,7 +220,7 @@ public class StudentGradingSystemUI extends Application {
         return studentTab;
     }
 
-    // Student Edit/Delete Operations Tab
+    // Student Edit/Delete Operations Tab (Database Support)
     private Tab manageStudentTab() {
         Tab studentTab = new Tab("Manage Students");
         studentTab.setClosable(false);
@@ -223,7 +242,8 @@ public class StudentGradingSystemUI extends Application {
         addStudentButton.setOnAction(_ -> {
             String id = idField.getText();
             if (!id.isEmpty()) {
-                Student student = studentService.findStudentById(id);
+                // Student student = studentService.findStudentById(id); // find student in list (no database)
+                Student student = studentServiceDB.findStudentById(id); // find student in database
                 if (student != null) {
                     displayStudentOptions(studentLayout, student, idField, addStudentButton);
                 } else {
@@ -261,7 +281,6 @@ public class StudentGradingSystemUI extends Application {
 
         studentLayout.getChildren().add(returnButtonContainer);
 
-    
         // Show student info
         Text studentInfo = new Text("Student: " + student.getFirstName() + " " + student.getLastName() + " (ID: " + student.getId() + ")");
         studentInfo.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
@@ -287,7 +306,8 @@ public class StudentGradingSystemUI extends Application {
             student.setLastName(lastNameField.getText());
             student.setId(idField2.getText());
             student.setClassName(classField.getText());
-            studentService.updateStudent(student);
+            studentServiceDB.updateStudent(student); // update student's details in database
+            System.out.println("Updated student info.");
             showAlert("Success", "Student information updated.");
         });
     
@@ -302,7 +322,8 @@ public class StudentGradingSystemUI extends Application {
             Text noCourses = new Text("No courses assigned.");
             coursesSection.getChildren().add(noCourses);
         } else{
-            for (Course course : student.getCourses()) {
+            // Retrieve courses for student from database
+            for(Course course : studentServiceDB.getCoursesForStudent(student.getId())){
                 HBox courseRow = new HBox(10);
                 Text courseId = new Text(course.getCourseId());
                 Text courseName = new Text(course.getName());
@@ -313,8 +334,7 @@ public class StudentGradingSystemUI extends Application {
                 removeCourseIcon.setFitWidth(20); 
                 removeCourseIcon.setFitHeight(20);
                 removeCourseIcon.setOnMouseClicked(_ -> {
-                    student.getCourses().remove(course);
-                    studentService.updateStudent(student);
+                    studentServiceDB.removeCourseFromStudent(student.getId(), course.getCourseId());
                     displayStudentOptions(studentLayout, student, idField, addStudentButton);
                 });
 
@@ -344,8 +364,7 @@ public class StudentGradingSystemUI extends Application {
         Button deleteButton = new Button("Delete Student");
         deleteButton.setStyle("-fx-background-color: red; -fx-text-fill: white;");
         deleteButton.setOnAction(_ -> {
-            studentService.deleteStudent(student.getId());
-            studentLayout.getChildren().clear();
+            studentServiceDB.deleteStudent(student.getId()); // delete student record from database
             studentLayout.getChildren().clear();
             studentLayout.getChildren().addAll(idField, addStudentButton);
             showAlert("Success", "Student deleted successfully.");
@@ -430,8 +449,7 @@ public class StudentGradingSystemUI extends Application {
         editCourseStage.show();
     }
 
-    
-    // Create Course Tab
+    // Create Course Tab (Database Support)
     private Tab createCourseTab() {
         Tab courseTab = new Tab("Manage Courses");
         courseTab.setClosable(false);
@@ -465,7 +483,8 @@ public class StudentGradingSystemUI extends Application {
             if (!name.isEmpty() && !id.isEmpty() && !creditHours.isEmpty()) {
                 try {
                     double creditHoursInt = Double.parseDouble(creditHours);
-                    courseService.createCourse(name, id, creditHoursInt);
+                    // courseService.createCourse(name, id, creditHoursInt); // create course (no database)
+                    courseServiceDB.createCourse(new Course(name, id, creditHoursInt)); // create course record in database
                     showAlert("Success", "Course added successfully!");
                     courseNameField.clear();
                     courseIdField.clear();
@@ -496,13 +515,14 @@ public class StudentGradingSystemUI extends Application {
 
         Button assignCourseButton = new Button("Assign Course to Student");
         assignCourseButton.getStyleClass().add("button");
-        assignCourseButton.setOnAction(e -> {
+        assignCourseButton.setOnAction(_ -> {
             String studentId = studentIdField.getText();
             String courseId = courseIdForStudentField.getText();
             Student student = studentService.findStudentById(studentId);
             Course course = courseService.getCourseById(courseId);
             if (student != null && course != null) {
                 student.addCourse(course);
+                studentServiceDB.addStudentCourse(student, course);; // add student-course relation to database
                 showAlert("Success", "Course assigned to student successfully!");
             } else {
                 showAlert("Error", "Student or Course not found.");
@@ -515,50 +535,6 @@ public class StudentGradingSystemUI extends Application {
                 courseIdForStudentField,
                 assignCourseButton
         );
-
-        // // Add fields for midterm, endterm, and project grades
-        // TextField midtermGradeField = new TextField();
-        // midtermGradeField.setPromptText("Midterm Grade");
-        // midtermGradeField.getStyleClass().add("input-field");
-
-        // TextField endtermGradeField = new TextField();
-        // endtermGradeField.setPromptText("Endterm Grade");
-        // endtermGradeField.getStyleClass().add("input-field");
-
-        // TextField projectGradeField = new TextField();
-        // projectGradeField.setPromptText("Project Grade");
-        // projectGradeField.getStyleClass().add("input-field");
-
-        // Button assignGradeButton = new Button("Assign Grades");
-        // assignGradeButton.getStyleClass().add("button"); 
-        // assignGradeButton.setOnAction(e -> {
-        //     String studentId = studentIdField.getText();
-        //     String courseId = courseIdForStudentField.getText();
-        //     try {
-        //         double midtermGrade = Double.parseDouble(midtermGradeField.getText());
-        //         double endtermGrade = Double.parseDouble(endtermGradeField.getText());
-        //         double projectGrade = Double.parseDouble(projectGradeField.getText());
-        //         Student student = studentService.findStudentById(studentId);
-        //         Course course = courseService.getCourseById(courseId);
-        //         if (student != null && course != null) {
-        //             // Assign grades to course
-        //             courseService.assignGradeToCourse(student, course, midtermGrade, endtermGrade, projectGrade);
-        //             showAlert("Success", "Grades assigned successfully!");
-        //         } else {
-        //             showAlert("Error", "Student or Course not found.");
-        //         }
-        //     } catch (NumberFormatException ex) {
-        //         showAlert("Error", "Please enter valid grades.");
-        //     }
-        // });
-
-        // courseLayout.getChildren().addAll(
-        //         new Label("Assign Grades:"),
-        //         midtermGradeField,
-        //         endtermGradeField,
-        //         projectGradeField,
-        //         assignGradeButton
-        // );
 
         courseTab.setContent(courseLayout);
         return courseTab;
