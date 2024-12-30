@@ -8,7 +8,7 @@ A comprehensive Java-based application that manages students, courses, and grade
 ### ⭐ Current Features
 1. **Student Management:**
    - Add new students by entering their name, ID, and class.
-   - Update student's details (name, ID, class and remove enrolled courses).
+   - Update student's details (name, ID, class, remove enrolled courses and edit assigned grades).
    - Delete students.
    - View a list of all students and their enrolled courses, with grades.
    
