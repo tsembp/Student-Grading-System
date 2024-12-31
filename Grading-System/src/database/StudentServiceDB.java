@@ -3,7 +3,7 @@ package database;
 import database.DatabaseConnection;
 import models.Student;
 import models.Course;
-
+import models.Grade;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -54,7 +54,7 @@ public class StudentServiceDB {
     }
 
     // Add grade for a student in a course
-    public void assignGrade(String studentId, String courseId, double midtermGrade, double endTermGrade, double projectGrade) {
+    public void assignGrade(String studentId, String courseId, Grade grade) {
         String query = "INSERT INTO Grade (studentId, courseId, midtermGrade, endTermGrade, projectGrade) " +
                     "VALUES (?, ?, ?, ?, ?) " +
                     "ON DUPLICATE KEY UPDATE " +
@@ -65,9 +65,9 @@ public class StudentServiceDB {
             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, studentId);
             stmt.setString(2, courseId);
-            stmt.setDouble(3, midtermGrade);
-            stmt.setDouble(4, endTermGrade);
-            stmt.setDouble(5, projectGrade);
+            stmt.setDouble(3, grade.getMidtermGrade());
+            stmt.setDouble(4, grade.getEndTermGrade());
+            stmt.setDouble(5, grade.getProjectGrade());
             stmt.executeUpdate();
             System.out.println("Grades assigned successfully for student " + studentId + " in course " + courseId);
         } catch (SQLException e) {
@@ -156,6 +156,39 @@ public class StudentServiceDB {
         return courses;
     }
     
+    // Get student's grades for a course
+    public Grade getGradesForStudentInCourse(String studentId, String courseId) {
+        String query = "SELECT midtermGrade, endTermGrade, projectGrade " +
+                       "FROM Grade " +
+                       "WHERE studentId = ? AND courseId = ?";
+            
+        Grade grades = null;
+        
+        try (Connection conn = DatabaseConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            // Set the studentId and courseId parameters
+            stmt.setString(1, studentId);
+            stmt.setString(2, courseId);
+            
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                // Retrieve grades from the result set
+                double midtermGrade = rs.getDouble("midtermGrade");
+                double endTermGrade = rs.getDouble("endTermGrade");
+                double projectGrade = rs.getDouble("projectGrade");
+                
+                grades = new Grade(midtermGrade, endTermGrade, projectGrade);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return grades;
+    }
+
     // Update student information
     public void updateStudent(Student student) {
         String query = "UPDATE Student SET firstName = ?, lastName = ?, className = ? WHERE id = ?";
@@ -171,20 +204,27 @@ public class StudentServiceDB {
         }
     }
 
-    // Enroll student to course
+    // Enroll student to course and initialize grades
     public void addStudentCourse(Student student, Course course) {
-        String query = "INSERT INTO StudentCourse (studentId, courseId) VALUES (?, ?)";
-        try (Connection conn = DatabaseConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        String studentCourseQuery = "INSERT INTO StudentCourse (studentId, courseId) VALUES (?, ?)";
+        String gradeInitializationQuery = "INSERT INTO Grade (studentId, courseId, midtermGrade, endTermGrade, projectGrade) VALUES (?, ?, 0, 0, 0)";
+        
+        try (Connection conn = DatabaseConnection.connect()) {
+            // Add student to the course
+            try (PreparedStatement stmt = conn.prepareStatement(studentCourseQuery)) {
+                stmt.setString(1, student.getId());
+                stmt.setString(2, course.getCourseId());
+                stmt.executeUpdate();
+                System.out.println("Student with ID " + student.getId() + " added to course with ID " + course.getCourseId());
+            }
             
-            // Set the studentId and courseId values
-            stmt.setString(1, student.getId());
-            stmt.setString(2, course.getCourseId());
-            
-            // Execute the insert query
-            stmt.executeUpdate();
-            System.out.println("Student with ID " + student.getId() + " added to course with ID " + course.getCourseId());
-            
+            // Initialize grades for the student in the course
+            try (PreparedStatement stmt = conn.prepareStatement(gradeInitializationQuery)) {
+                stmt.setString(1, student.getId());
+                stmt.setString(2, course.getCourseId());
+                stmt.executeUpdate();
+                System.out.println("Grades initialized for student with ID " + student.getId() + " in course with ID " + course.getCourseId());
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

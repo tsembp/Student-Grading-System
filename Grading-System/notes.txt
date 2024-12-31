@@ -1,8 +1,8 @@
 ⬜: unfinished task  ✅: finished task
 
 DATABASE:
-⬜ grade assign functionality
-⬜ course editing for student (grades)
+✅ grade assign functionality
+✅ course editing for student (grades)
 ✅ add student to database
 ✅ update student in database
 ✅ assign course for student

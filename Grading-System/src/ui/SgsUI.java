@@ -1,6 +1,5 @@
 package ui;
 
-import java.util.ArrayList;
 import java.util.List;
 import models.Student;
 import models.Course;
@@ -19,7 +18,7 @@ import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-public class StudentGradingSystemUI extends Application {
+public class SgsUI extends Application {
 
     private static final String ACCESS_PIN = "1234";  // pin for user login
 
@@ -153,6 +152,15 @@ public class StudentGradingSystemUI extends Application {
             String id = idField.getText();
             String className = classField.getText();
             if (!firstName.isEmpty() && !lastName.isEmpty() && !id.isEmpty() && !className.isEmpty()) {
+                // Avoid duplicate entries
+                if(studentServiceDB.findStudentById(id) != null) {
+                    showAlert("Error", "Student with ID " + id + " already exists.");
+                    firstNameTextField.clear();
+                    lastNameTextField.clear();
+                    idField.clear();
+                    classField.clear();
+                    return;
+                }
                 // studentService.addStudent(new Student(firstName, lastName, id, className)); // add student (no database)
                 studentServiceDB.addStudent(new Student(firstName, lastName, id, className)); // add student to database
                 firstNameTextField.clear();
@@ -195,15 +203,21 @@ public class StudentGradingSystemUI extends Application {
                     sb.append("📚 Enrolled Courses:\n");
                     List<Course> studentCourses = studentServiceDB.getCoursesForStudent(student.getId()); // get courses that student is enrolled
                     // • [EPL231] DSA in Java (7.5 EC)
-                    for(Course course : studentCourses){
-                        sb.append("\t• [" + course.getCourseId() + "] " + course.getName() + " (" + course.getCreditHours() + " EC)\n");
-                        Grade courseGrades = course.getGradeForStudent(student);
-                        if(courseGrades == null){
-                            sb.append("\t\tNo grades assigned.\n");
-                        } else{
-                            sb.append("\t\tProject Grade: " + courseGrades.getProjectGrade() + " | MidTerm Grade: " + courseGrades.getMidtermGrade() + " | EndTerm Grade: " + courseGrades.getEndTermGrade() + "\n");
+                    if(studentCourses.isEmpty()){
+                        sb.append("\tNo courses assigned.\n");
+                    } else{
+                        for(Course course : studentCourses){
+                            sb.append("\t• [" + course.getCourseId() + "] " + course.getName() + " (" + course.getCreditHours() + " EC)\n");
+                            Grade courseGrades = studentServiceDB.getGradesForStudentInCourse(student.getId(), course.getCourseId()); // get grades for student in course
+                            if(courseGrades == null){
+                                sb.append("\t\tNo grades assigned.\n");
+                            } else{
+                                sb.append("\t\tProject Grade: " + courseGrades.getProjectGrade() + " | MidTerm Grade: " + courseGrades.getMidtermGrade() + " | EndTerm Grade: " + courseGrades.getEndTermGrade() + "\n");
+                            }
                         }
                     }
+
+                    index++;
                 }
             }
 
@@ -383,40 +397,50 @@ public class StudentGradingSystemUI extends Application {
         // Create a new window (Stage) for editing the course
         Stage editCourseStage = new Stage();
         editCourseStage.setTitle("Edit Course");
+        editCourseStage.setWidth(300);
+        editCourseStage.setHeight(320);
 
         // Create a form for editing course details
         VBox editForm = new VBox(10);
         editForm.setPadding(new Insets(20));
 
         // Fields to edit the grades
-        Grade studentGrades = course.getGradeForStudent(student);
+        Grade studentGrades = studentServiceDB.getGradesForStudentInCourse(student.getId(), course.getCourseId()); // get grades for student in course from database
+        
+        Label midtermLabel = new Label("Midterm Grade:");
         TextField midtermGradeField = new TextField(String.valueOf(studentGrades.getMidtermGrade()));
         midtermGradeField.setPromptText("Midterm Grade");
 
+        Label endtermLabel = new Label("Endterm Grade:");
         TextField endtermGradeField = new TextField(String.valueOf(studentGrades.getEndTermGrade()));
         endtermGradeField.setPromptText("End-term Grade");
 
+
+        Label projectLabel = new Label("Project Grade:");
         TextField projectGradeField = new TextField(String.valueOf(studentGrades.getProjectGrade()));
         projectGradeField.setPromptText("Project Grade");
 
-        // Button to save the changes
-        Button saveButton = new Button("Save Changes");
+        // Buttons for save and un-assign
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER_LEFT);
 
-        // Button to un-assign the course from the student
+        Button saveButton = new Button("Save Changes");
+        saveButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
+
         Button unassignButton = new Button("Un-assign Course");
+        unassignButton.setStyle("-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;");
+        buttonBox.getChildren().addAll(saveButton, unassignButton);
 
         // Save button action: Update grades and student record
         saveButton.setOnAction(_ -> {
             try {
-                // // Update the course details with the new grades (no database)
-                // studentGrades.setMidtermGrade(Double.parseDouble(midtermGradeField.getText()));
-                // studentGrades.setEndTermGrade(Double.parseDouble(endtermGradeField.getText()));
-                // studentGrades.setProjectGrade(Double.parseDouble(projectGradeField.getText()));
-                // // Update the student record with the modified course
-                // studentService.updateStudent(student);
+                // Update the course details with the new grades (no database)
+                studentGrades.setMidtermGrade(Double.parseDouble(midtermGradeField.getText()));
+                studentGrades.setEndTermGrade(Double.parseDouble(endtermGradeField.getText()));
+                studentGrades.setProjectGrade(Double.parseDouble(projectGradeField.getText()));
 
                 // Update student's grades for specific course in database
-                studentServiceDB.assignGrade(student.getId(), course.getCourseId(), Double.parseDouble(midtermGradeField.getText()), Double.parseDouble(endtermGradeField.getText()), Double.parseDouble(projectGradeField.getText()));
+                studentServiceDB.assignGrade(student.getId(), course.getCourseId(), studentGrades);
 
                 displayStudentOptions(studentLayout, student, idField, addStudentButton);
             } catch (NumberFormatException ex) {
@@ -447,7 +471,16 @@ public class StudentGradingSystemUI extends Application {
         });
 
         // Add all form elements to the VBox
-        editForm.getChildren().addAll(midtermGradeField, endtermGradeField, projectGradeField, saveButton, unassignButton);
+        editForm.getChildren().addAll(
+            midtermLabel,
+            midtermGradeField,
+            endtermLabel,
+            endtermGradeField,
+            projectLabel,
+            projectGradeField,
+            saveButton, 
+            unassignButton
+        );
 
         // Create a scene for the stage and set it
         Scene editCourseScene = new Scene(editForm, 300, 250);
