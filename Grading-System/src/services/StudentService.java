@@ -17,6 +17,7 @@ public class StudentService {
         students.put(student.getId(), student);
     }
 
+    // Delete student from system
     public void deleteStudent(String studentId) {
         students.remove(studentId);
     }

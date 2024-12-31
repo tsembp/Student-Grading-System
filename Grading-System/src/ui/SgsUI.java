@@ -26,48 +26,14 @@ public class SgsUI extends Application {
     private CourseService courseService = new CourseService();
     private StudentServiceDB studentServiceDB = new StudentServiceDB();
     private CourseServiceDB courseServiceDB = new CourseServiceDB();
-    private GradeServiceDB gradeServiceDB = new GradeServiceDB();
-
-    private void initializeTestData() {
-        // Create students
-        Student student1 = new Student("Panagiotis", "Tsembekis", "1114964", "G33");
-        Student student2 = new Student("Rafaela", "Mavroudi", "1114963", "G34");
-    
-        // Add students to the system
-        studentService.addStudent(student1);
-        studentService.addStudent(student2);
-    
-        // Create courses
-        Course mutualCourse = new Course("Statistics", "MAS055", 7.0);
-        Course student1Course = new Course("DSA in Java", "EPL231", 7.5);
-        Course student2Course = new Course("Computer Organization", "EPL221", 5.0);
-    
-        // Add courses to the system
-        courseService.createCourse(mutualCourse.getName(), mutualCourse.getCourseId(), mutualCourse.getCreditHours());
-        courseService.createCourse(student1Course.getName(), student1Course.getCourseId(), student1Course.getCreditHours());
-        courseService.createCourse(student2Course.getName(), student2Course.getCourseId(), student2Course.getCreditHours());
-    
-        // Assign courses to students
-        student1.addCourse(mutualCourse);
-        courseService.assignGradeToCourse(student1, mutualCourse, 78, 82, 99);
-        student1.addCourse(student1Course);
-        courseService.assignGradeToCourse(student1, student1Course, 89, 70, 97);
-        student2.addCourse(mutualCourse);
-        courseService.assignGradeToCourse(student2, mutualCourse, 90, 92, 96);
-        student2.addCourse(student2Course);
-        courseService.assignGradeToCourse(student2, student2Course, 75, 88, 100);
-    }
 
     @Override
     public void start(Stage primaryStage) {
 
         // User authentication page
-        // if (!showLoginScreen(primaryStage)) {
-        //     return;  // If authentication fails, exit the application
-        // }
-
-        // Load test data in system
-        initializeTestData();
+        if (!showLoginScreen(primaryStage)) {
+            return;  // If authentication fails, exit the application
+        }
 
         primaryStage.setTitle("Student Grading System");
 

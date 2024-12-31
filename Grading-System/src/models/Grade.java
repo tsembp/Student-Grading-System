@@ -44,4 +44,5 @@ public class Grade {
     public String toString() {
         return "Midterm: " + midtermGrade + ", End-Term: " + endTermGrade + ", Project: " + projectGrade;
     }
+    
 }

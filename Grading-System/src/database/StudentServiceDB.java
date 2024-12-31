@@ -1,6 +1,5 @@
 package database;
 
-import database.DatabaseConnection;
 import models.Student;
 import models.Course;
 import models.Grade;

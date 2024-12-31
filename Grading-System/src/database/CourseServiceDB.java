@@ -1,8 +1,6 @@
 package database;
 
-import database.DatabaseConnection;
 import models.Course;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -55,4 +53,5 @@ public class CourseServiceDB {
             e.printStackTrace();
         }
     }
+    
 }
