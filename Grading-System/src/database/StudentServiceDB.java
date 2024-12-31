@@ -31,9 +31,17 @@ public class StudentServiceDB {
     public void deleteStudent(String studentId) {
         // Delete the associated records in the studentcourse table first
         String deleteStudentCourseQuery = "DELETE FROM studentcourse WHERE studentId = ?";
+        String deleteGradeQuery = "DELETE FROM Grade WHERE studentId = ?";
         String deleteStudentQuery = "DELETE FROM Student WHERE id = ?";
+
         
         try (Connection conn = DatabaseConnection.connect()) {
+            // Delete records from grades table
+            try(PreparedStatement stmt = conn.prepareStatement(deleteGradeQuery)) {
+                stmt.setString(1, studentId);
+                stmt.executeUpdate();
+            }
+
             // Delete records from studentcourse table
             try (PreparedStatement stmt = conn.prepareStatement(deleteStudentCourseQuery)) {
                 stmt.setString(1, studentId);
@@ -76,12 +84,24 @@ public class StudentServiceDB {
     
     // Remove course from student in database
     public void removeCourseFromStudent(String studentId, String courseId) {
-        String query = "DELETE FROM studentcourse WHERE studentId = ? AND courseId = ?";
-        try (Connection conn = DatabaseConnection.connect();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, studentId);
-            stmt.setString(2, courseId);
-            stmt.executeUpdate();
+        String gradeQuery = "DELETE FROM Grade WHERE studentId = ? AND courseId = ?";
+        String studentCourseQuery = "DELETE FROM studentcourse WHERE studentId = ? AND courseId = ?";
+    
+        try (Connection conn = DatabaseConnection.connect()) {
+            // Delete from Grade table
+            try (PreparedStatement stmt = conn.prepareStatement(gradeQuery)) {
+                stmt.setString(1, studentId);
+                stmt.setString(2, courseId);
+                stmt.executeUpdate();
+            }
+    
+            // Delete from studentcourse table
+            try (PreparedStatement stmt = conn.prepareStatement(studentCourseQuery)) {
+                stmt.setString(1, studentId);
+                stmt.setString(2, courseId);
+                stmt.executeUpdate();
+            }
+    
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -1,2 +1,2 @@
 use sgs;
-select * from course;
+select * from grade;

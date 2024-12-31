@@ -30,10 +30,10 @@ public class SgsUI extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        // User authentication page
-        if (!showLoginScreen(primaryStage)) {
-            return;  // If authentication fails, exit the application
-        }
+        // // User authentication page
+        // if (!showLoginScreen(primaryStage)) {
+        //     return;  // If authentication fails, exit the application
+        // }
 
         primaryStage.setTitle("Student Grading System");
 
@@ -152,6 +152,7 @@ public class SgsUI extends Application {
         Button listStudentsButton = new Button("View");
         listStudentsButton.getStyleClass().add("button"); 
         TextArea studentListArea = new TextArea();
+        studentListArea.setPrefHeight(200);
         studentListArea.setEditable(false);
         studentListArea.getStyleClass().add("textarea"); 
 
@@ -525,8 +526,10 @@ public class SgsUI extends Application {
         assignCourseButton.setOnAction(_ -> {
             String studentId = studentIdField.getText();
             String courseId = courseIdForStudentField.getText();
-            Student student = studentService.findStudentById(studentId);
-            Course course = courseService.getCourseById(courseId);
+            // Student student = studentService.findStudentById(studentId);
+            // Course course = courseService.getCourseById(courseId);
+            Student student = studentServiceDB.findStudentById(studentId);
+            Course course = courseServiceDB.getCourseById(courseId);
             if (student != null && course != null) {
                 student.addCourse(course);
                 studentServiceDB.addStudentCourse(student, course);; // add student-course relation to database
