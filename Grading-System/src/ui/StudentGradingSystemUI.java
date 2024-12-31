@@ -318,12 +318,13 @@ public class StudentGradingSystemUI extends Application {
         Text coursesTitle = new Text("Courses:");
         coursesSection.getChildren().add(coursesTitle);
 
-        if(student.getCourses().isEmpty()){
+        // Retrieve courses for student from database
+        List<Course> studentCourses = studentServiceDB.getCoursesForStudent(student.getId());
+        if(studentCourses.isEmpty()){
             Text noCourses = new Text("No courses assigned.");
             coursesSection.getChildren().add(noCourses);
         } else{
-            // Retrieve courses for student from database
-            for(Course course : studentServiceDB.getCoursesForStudent(student.getId())){
+            for(Course course : studentCourses){
                 HBox courseRow = new HBox(10);
                 Text courseId = new Text(course.getCourseId());
                 Text courseName = new Text(course.getName());
@@ -334,7 +335,7 @@ public class StudentGradingSystemUI extends Application {
                 removeCourseIcon.setFitWidth(20); 
                 removeCourseIcon.setFitHeight(20);
                 removeCourseIcon.setOnMouseClicked(_ -> {
-                    studentServiceDB.removeCourseFromStudent(student.getId(), course.getCourseId());
+                    studentServiceDB.removeCourseFromStudent(student.getId(), course.getCourseId()); // remove student-course relation from database
                     displayStudentOptions(studentLayout, student, idField, addStudentButton);
                 });
 
@@ -345,7 +346,7 @@ public class StudentGradingSystemUI extends Application {
                 editCourseIcon.setFitHeight(20);
                 editCourseIcon.setOnMouseClicked(_ -> {
                     displayCourseEditBox(course, student, studentLayout, idField, addStudentButton);
-                    studentService.updateStudent(student);
+                    studentService.updateStudent(student); // update student record in student list (no database)
                     displayStudentOptions(studentLayout, student, idField, addStudentButton);
                 });
 
@@ -407,13 +408,16 @@ public class StudentGradingSystemUI extends Application {
         // Save button action: Update grades and student record
         saveButton.setOnAction(_ -> {
             try {
-                // Update the course details with the new grades
-                studentGrades.setMidtermGrade(Double.parseDouble(midtermGradeField.getText()));
-                studentGrades.setEndTermGrade(Double.parseDouble(endtermGradeField.getText()));
-                studentGrades.setProjectGrade(Double.parseDouble(projectGradeField.getText()));
+                // // Update the course details with the new grades (no database)
+                // studentGrades.setMidtermGrade(Double.parseDouble(midtermGradeField.getText()));
+                // studentGrades.setEndTermGrade(Double.parseDouble(endtermGradeField.getText()));
+                // studentGrades.setProjectGrade(Double.parseDouble(projectGradeField.getText()));
+                // // Update the student record with the modified course
+                // studentService.updateStudent(student);
 
-                // Update the student record with the modified course
-                studentService.updateStudent(student);
+                // Update student's grades for specific course in database
+                studentServiceDB.assignGrade(student.getId(), course.getCourseId(), Double.parseDouble(midtermGradeField.getText()), Double.parseDouble(endtermGradeField.getText()), Double.parseDouble(projectGradeField.getText()));
+
                 displayStudentOptions(studentLayout, student, idField, addStudentButton);
             } catch (NumberFormatException ex) {
                 // Handle invalid input (e.g., non-numeric grades)
@@ -427,11 +431,15 @@ public class StudentGradingSystemUI extends Application {
 
         // Un-assign button action: Remove course from student's courses
         unassignButton.setOnAction(_ -> {
-            // Remove the course from the student's list of courses
-            student.getCourses().remove(course);
+            // // Remove the course from the student's list of courses
+            // student.getCourses().remove(course);
 
-            // Update the student record after un-assigning the course
-            studentService.updateStudent(student);
+            // // Update the student record after un-assigning the course
+            // studentService.updateStudent(student);
+
+            // Remove student-course relation from database
+            studentServiceDB.removeCourseFromStudent(student.getId(), course.getCourseId());
+
             displayStudentOptions(studentLayout, student, idField, addStudentButton);
 
             // Close the window after un-assigning the course

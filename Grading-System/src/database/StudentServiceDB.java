@@ -53,9 +53,31 @@ public class StudentServiceDB {
         }
     }
 
+    // Add grade for a student in a course
+    public void assignGrade(String studentId, String courseId, double midtermGrade, double endTermGrade, double projectGrade) {
+        String query = "INSERT INTO Grade (studentId, courseId, midtermGrade, endTermGrade, projectGrade) " +
+                    "VALUES (?, ?, ?, ?, ?) " +
+                    "ON DUPLICATE KEY UPDATE " +
+                    "midtermGrade = VALUES(midtermGrade), " +
+                    "endTermGrade = VALUES(endTermGrade), " +
+                    "projectGrade = VALUES(projectGrade)";
+        try (Connection conn = DatabaseConnection.connect();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, studentId);
+            stmt.setString(2, courseId);
+            stmt.setDouble(3, midtermGrade);
+            stmt.setDouble(4, endTermGrade);
+            stmt.setDouble(5, projectGrade);
+            stmt.executeUpdate();
+            System.out.println("Grades assigned successfully for student " + studentId + " in course " + courseId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
     // Remove course from student in database
     public void removeCourseFromStudent(String studentId, String courseId) {
-        String query = "DELETE FROM student_courses WHERE student_id = ? AND course_id = ?";
+        String query = "DELETE FROM studentcourse WHERE studentId = ? AND courseId = ?";
         try (Connection conn = DatabaseConnection.connect();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, studentId);
