@@ -83,7 +83,6 @@ Watch the demo video below to see the Student Grading System in action:
 
 <video controls width="500">
   <source src="assets/preview-video.mp4" type="video/mp4">
-  Your browser does not support the video tag.
 </video>
 
 
