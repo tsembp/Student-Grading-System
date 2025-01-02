@@ -80,10 +80,7 @@ A comprehensive Java-based application that manages students, courses, and grade
 ## Demo Video
 
 Watch the demo video below to see the Student Grading System in action:
-
-<video controls width="500">
-  <source src="assets/preview-video.mp4" type="video/mp4">
-</video>
+[Demo Video](assets/preview-video.mp4)
 
 
 ## Requirements
