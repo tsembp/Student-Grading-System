@@ -44,38 +44,10 @@ A comprehensive Java-based application that manages students, courses, and grade
    - Improve the layout for better accessibility and user navigation.
 
 
-## Screenshots
+## Demo Video
 
-### 1. **Manage Students Tab**
-   This tab allows you to view and manage students. It displays the list of students and allows you to add new students to the system.
-
-   <img src="assets/main-interface-1.png" width="500" />
-
-### 2. **Manage Courses Tab**
-   The Manage Courses tab allows you to add new courses and view the details of existing courses.
-
-   <img src="assets/main-interface-2.png" width="500" />
-
-### 3. **Add Student**
-   This section shows the interface for adding a new student. You can enter the student's name, ID, and class details.
-
-   <img src="assets/student-add.png" width="500" />
-
-### 4. **Add Course**
-   This section demonstrates how to add a new course, where you can enter the course name and ID.
-
-   <img src="assets/course-add.png" width="500" />
-
-### 5. **Assign Course to Student**
-   This screenshot shows the screen where you can assign a course to a student by entering the student's ID and the course ID.
-
-   <img src="assets/course-assign-valid.png" width="500" />
-
-### 6. **Assign Course to Non-Existent Student**
-   This section demonstrates the error message shown when trying to assign a course to a student who is not enrolled in the system.
-
-   <img src="assets/course-assign-valid.png" width="500" />
-
+Watch the demo video below to see the Student Grading System in action:
+[Demo Video](https://github.com/tsembp/Student-Grading-System/blob/main/assets/preview-video.mp4)
 
 
 ## Requirements
