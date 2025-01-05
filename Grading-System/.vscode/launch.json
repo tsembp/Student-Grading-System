@@ -3,6 +3,14 @@
   "configurations": [
     {
       "type": "java",
+      "name": "SystemUI",
+      "request": "launch",
+      "mainClass": "ui.SystemUI",
+      "projectName": "Grading-System_b4ca4b33",
+      "vmArgs": "--module-path C:/Users/panag/Documents/javaFX-23/javafx-sdk-23.0.1/lib --add-modules javafx.controls,javafx.fxml -cp C:/Users/panag/Documents/GitHub/Student-Grading-System/Grading-System/lib;C:/path/to/fontawesomefx-8.9.jar"
+    },
+    {
+      "type": "java",
       "name": "SgsUI",
       "request": "launch",
       "mainClass": "ui.SgsUI",

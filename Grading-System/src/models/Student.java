@@ -3,19 +3,12 @@ package models;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Student {
+public class Student extends User {
 
-    private String firstName;
-    private String lastName;
-    private String id;
-    private String className;
     private List<Course> courses;
 
-    public Student(String firstName, String lastName, String id, String className) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.id = id;
-        this.className = className;
+    public Student(String firstName, String lastName, String id, String username, String password) {
+        super(firstName, lastName, id, username, password, Role.STUDENT);
         this.courses = new ArrayList<>();
     }
 
@@ -26,40 +19,8 @@ public class Student {
         }
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
     public List<Course> getCourses() {
         return courses;
-    }
-
-    public void setFirstName(String newName) {
-        this.firstName = newName;
-    }
-
-    public void setLastName(String newName) {
-        this.lastName = newName;
-    }
-
-    public void setId(String newId) {
-        this.id = newId;
-    }
-
-    public void setClassName(String newClassName) {
-        this.className = newClassName;
     }
 
     public String getCoursesAndGrades() {
@@ -87,7 +48,7 @@ public class Student {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("ID: ").append(id).append(" | Full Name: ").append(firstName).append(" ").append(lastName).append(" | Class: ").append(className).append("\n");
+        sb.append("ID: ").append(super.getId()).append(" | Full Name: ").append(super.getFirstName()).append(" ").append(super.getLastName()).append("\n");
 
         if (courses.isEmpty()) {
             sb.append("> Assigned Courses: No enrolled courses.\n");
@@ -98,5 +59,5 @@ public class Student {
 
         return sb.toString();
     }
-    
+
 }
