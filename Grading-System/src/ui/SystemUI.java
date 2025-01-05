@@ -1,82 +1,28 @@
 package ui;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 
 import database.*;
 import models.*;
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class SystemUI extends Application {
 
     private UserServiceDB userService = new UserServiceDB();
-
-    public  static void createDefaultUsers() {
-        // SQL queries for inserting the users into the users table and their respective role tables
-        String insertUserQuery = "INSERT INTO users (user_id, first_name, last_name, username, password, role_id) VALUES (?, ?, ?, ?, ?, ?)";
-        String insertStudentQuery = "INSERT INTO student (id, user_id) VALUES (?, ?)";
-        String insertTeacherQuery = "INSERT INTO teacher (id, department, user_id) VALUES (?, ?, ?)";
-        
-        try (Connection conn = DatabaseConnection.connect()) {
-            // Create Admin user
-            try (PreparedStatement stmt = conn.prepareStatement(insertUserQuery)) {
-                stmt.setString(1, "admin123");
-                stmt.setString(2, "Admin");
-                stmt.setString(3, "User");
-                stmt.setString(4, "admin");
-                stmt.setString(5, "admin123");
-                stmt.setInt(6, Role.ADMIN.getId());
-                stmt.executeUpdate();
-            }
-
-            // Create Student user
-            try (PreparedStatement stmt = conn.prepareStatement(insertUserQuery)) {
-                stmt.setString(1, "student123");
-                stmt.setString(2, "Panagiotis");
-                stmt.setString(3, "Tsembekis");
-                stmt.setString(4, "tsembp");
-                stmt.setString(5, "studentPassword123");
-                stmt.setInt(6, Role.STUDENT.getId());
-                stmt.executeUpdate();
-            }
-
-            // Insert student into student table
-            try (PreparedStatement stmt = conn.prepareStatement(insertStudentQuery)) {
-                stmt.setString(1, "student123");
-                stmt.setString(2, "student123");
-                stmt.executeUpdate();
-            }
-
-            // Create Teacher user
-            try (PreparedStatement stmt = conn.prepareStatement(insertUserQuery)) {
-                stmt.setString(1, "teacher123");
-                stmt.setString(2, "Lysandros");
-                stmt.setString(3, "Georgiou");
-                stmt.setString(4, "lysandrosg");
-                stmt.setString(5, "teacherPassword123");
-                stmt.setInt(6, Role.TEACHER.getId());
-                stmt.executeUpdate();
-            }
-
-            // Insert teacher into teacher table
-            try (PreparedStatement stmt = conn.prepareStatement(insertTeacherQuery)) {
-                stmt.setString(1, "teacher123");
-                stmt.setString(2, "Computer Science");
-                stmt.setString(3, "teacher123");
-                stmt.executeUpdate();
-            }
-
-            System.out.println("Admin, Student, and Teacher have been created successfully.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+    private CourseServiceDB courseService = new CourseServiceDB();
+    private StudentServiceDB studentService = new StudentServiceDB();
+    private TeacherServiceDB teacherServiceDB = new TeacherServiceDB();
 
     public static void main(String[] args) {
         launch(args);
@@ -102,18 +48,11 @@ public class SystemUI extends Application {
         // Create a VBox to hold UI elements
         VBox vbox = new VBox(15);
         vbox.setAlignment(Pos.CENTER);
-        vbox.setPadding(new javafx.geometry.Insets(30));  // Add padding around the VBox
+        vbox.setPadding(new javafx.geometry.Insets(30));
         vbox.getChildren().addAll(titleLabel, usernameField, passwordField, loginButton);
 
-        // Add background image
-        BackgroundImage backgroundImage = new BackgroundImage(
-            new javafx.scene.image.Image("file:resources/background.jpg", true),
-            BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT);
-        Background background = new Background(backgroundImage);
-        vbox.setBackground(background);
-
         // Handle login button click
-        loginButton.setOnAction(event -> {
+        loginButton.setOnAction(_ -> {
             String username = usernameField.getText();
             String password = passwordField.getText();
 
@@ -125,13 +64,13 @@ public class SystemUI extends Application {
                 Role role = user.getRole();
                 switch (role) {
                     case Role.STUDENT:
-                        showStudentWindow();
+                        showStudentWindow(user);
                         break;
                     case Role.TEACHER:
-                        showTeacherWindow();
+                        // showTeacherWindow(user);
                         break;
                     case Role.ADMIN:
-                        showAdminWindow();
+                        // showAdminWindow(user);
                         break;
                     default:
                         showError("Invalid role assigned to user!");
@@ -150,23 +89,119 @@ public class SystemUI extends Application {
         primaryStage.show();
     }
 
-    // Function to show the student window
-    private void showStudentWindow() {
-        // Implement the student window UI here
-        System.out.println("Showing student window...");
+    public void showStudentWindow(User user) {
+        // Create a new Stage for the student window
+        Stage studentStage = new Stage();
+        studentStage.setTitle("Student Grading System - Student Dashboard");
+
+        // Label for the student's name
+        Label welcomeLabel = new Label("Welcome, " + user.getUsername());
+        welcomeLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;");
+
+        // TableView to display courses and grades
+        TableView<Course> courseTableView = new TableView<>();
+
+        // Define columns for course name and grade
+        TableColumn<Course, String> courseIdColumn = new TableColumn<>("Course ID");
+        courseIdColumn.setCellValueFactory(cellData -> {
+            Course course = cellData.getValue();
+            return new SimpleStringProperty(course.getCourseId());
+        });
+
+        TableColumn<Course, String> courseNameColumn = new TableColumn<>("Course Title");
+        courseNameColumn.setCellValueFactory(cellData -> {
+            Course course = cellData.getValue();
+            return new SimpleStringProperty(course.getCourseName());
+        });
+
+        TableColumn<Course, String> courseECColumn = new TableColumn<>("EC");
+        courseECColumn.setCellValueFactory(cellData -> {
+            Course course = cellData.getValue();
+            return new SimpleStringProperty(String.valueOf(course.getCreditHours()));
+        });
+
+        TableColumn<Course, String> midTermColumn = new TableColumn<>("Midterm Grade");
+        midTermColumn.setCellValueFactory(cellData -> {
+            Course course = cellData.getValue();
+            return new SimpleStringProperty(String.valueOf(studentService.getGradesForStudentInCourse(user.getId(), course.getCourseId()).getMidtermGrade()));
+        });
+
+        TableColumn<Course, String> endTermColumn = new TableColumn<>("Endterm Grade");
+        endTermColumn.setCellValueFactory(cellData -> {
+            Course course = cellData.getValue();
+            return new SimpleStringProperty(String.valueOf(studentService.getGradesForStudentInCourse(user.getId(), course.getCourseId()).getEndTermGrade()));
+        });
+
+        TableColumn<Course, String> projectColumn = new TableColumn<>("Project Grade");
+        projectColumn.setCellValueFactory(cellData -> {
+            Course course = cellData.getValue();
+            return new SimpleStringProperty(String.valueOf(studentService.getGradesForStudentInCourse(user.getId(), course.getCourseId()).getProjectGrade()));
+        });
+
+        // Add "Drop" column with a button
+        TableColumn<Course, Void> dropColumn = new TableColumn<>("Drop");
+        dropColumn.setCellFactory(_ -> new TableCell<Course, Void>() {
+            private final Button dropButton = new Button("❌"); // Use a cross emoji or an icon here
+
+            {
+                dropButton.setStyle("-fx-font-size: 16px; -fx-background-color: transparent; -fx-text-fill: red;");
+                dropButton.setOnAction(_ -> {
+                    Course course = getTableView().getItems().get(getIndex());
+                    // Show confirmation dialog
+                    Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirmationAlert.setTitle("Confirm Drop");
+                    confirmationAlert.setHeaderText("Are you sure you want to drop the course?");
+                    confirmationAlert.setContentText("This action cannot be undone.");
+
+                    Optional<ButtonType> result = confirmationAlert.showAndWait();
+                    if (result.isPresent() && result.get() == ButtonType.OK) {
+                        // Remove course from the student and update table
+                        studentService.unassignCourseFromStudent(user.getId(), course.getCourseId());
+                        getTableView().getItems().remove(course);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(dropButton);
+                }
+            }
+        });
+
+        courseTableView.getColumns().addAll(courseIdColumn, courseNameColumn, courseECColumn, midTermColumn, endTermColumn, projectColumn, dropColumn);
+
+        // Fetch courses and grades for the student
+        List<Course> courses = studentService.getCoursesForStudent(user.getId());
+        courseTableView.getItems().addAll(courses);
+
+        // Add a refresh button to refresh the course list
+        Button refreshButton = new Button("Refresh Courses");
+        refreshButton.setStyle("-fx-font-size: 14px; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-border-radius: 5px; -fx-padding: 10px 20px;");
+        refreshButton.setOnAction(_ -> {
+            courseTableView.getItems().clear();
+            List<Course> updatedCourses = studentService.getCoursesForStudent(user.getId());
+            courseTableView.getItems().addAll(updatedCourses);
+        });
+
+        // Create a VBox to hold the UI elements
+        VBox vbox = new VBox(20);
+        vbox.setPadding(new Insets(30));
+        vbox.setAlignment(Pos.CENTER);
+        vbox.getChildren().addAll(welcomeLabel, courseTableView, refreshButton);
+
+        // Create scene and show student window
+        Scene scene = new Scene(vbox, 800, 500);
+        studentStage.setScene(scene);
+        studentStage.show();
     }
 
-    // Function to show the teacher window
-    private void showTeacherWindow() {
-        // Implement the teacher window UI here
-        System.out.println("Showing teacher window...");
-    }
 
-    // Function to show the admin window
-    private void showAdminWindow() {
-        // Implement the admin window UI here
-        System.out.println("Showing admin window...");
-    }
+    
 
     // Function to show error message in a dialog
     private void showError(String message) {

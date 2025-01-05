@@ -47,7 +47,7 @@ public class Course {
         return studentGrades;
     }
 
-    public String getName() {
+    public String getCourseName() {
         return name;
     }
     

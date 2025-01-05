@@ -31,7 +31,7 @@ public class Student extends User {
             Grade grade = course.getGradeForStudent(this); // get total grade for student 'this'
             sb.append(courseIndex + ". ");
             sb.append("[" + course.getCourseId() + "]");
-            sb.append(" " + course.getName());
+            sb.append(" " + course.getCourseName());
             sb.append(" (" + course.getCreditHours() + " EC)");
             if (grade != null) {
                 sb.append("\t (Midterm: ").append(grade.getMidtermGrade())

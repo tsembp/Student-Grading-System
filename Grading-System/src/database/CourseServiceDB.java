@@ -13,7 +13,7 @@ public class CourseServiceDB {
         String query = "INSERT INTO Course (courseName, courseId, creditHours) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, course.getName());
+            stmt.setString(1, course.getCourseName());
             stmt.setString(2, course.getCourseId());
             stmt.setDouble(3, course.getCreditHours());
             stmt.executeUpdate();

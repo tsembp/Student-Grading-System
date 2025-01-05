@@ -21,14 +21,13 @@ public enum Role {
         return name;
     }
 
-    // Optional: Get Role by id
     public static Role getById(int id) {
         for (Role role : values()) {
             if (role.getId() == id) {
                 return role;
             }
         }
-        return null; // or throw IllegalArgumentException
+        return null;
     }
 
     @Override

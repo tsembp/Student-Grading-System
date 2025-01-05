@@ -1,11 +1,11 @@
 ⬜: unfinished task  ✅: finished task
 
 DATABASE:
-✅ grade assign functionality
-✅ course editing for student (grades)
-✅ add student to database
-✅ update student in database
-✅ assign course for student
-✅ remove course from student
-✅ retrieve list of courses for student from database
-✅ delete student button feature
+✅ Test authentication
+✅ Test adding and deleting student
+✅ Test adding and deleting teacher
+✅ Test assigning/un-assigning courses to teacher
+✅ Test assigning/un-assigning courses to student
+✅ Test assigning grade to student
+✅ Test getting courses for student
+✅ Test getting grades for student in a course

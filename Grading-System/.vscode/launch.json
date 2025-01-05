@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "TestClass",
+      "request": "launch",
+      "mainClass": "ui.TestClass",
+      "projectName": "Grading-System_b4ca4b33"
+    },
+    {
+      "type": "java",
       "name": "SystemUI",
       "request": "launch",
       "mainClass": "ui.SystemUI",
