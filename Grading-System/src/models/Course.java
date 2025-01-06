@@ -9,12 +9,14 @@ public class Course {
     private String courseId;
     private double creditHours;
     private Map<Student, Grade> studentGrades;
+    private Teacher teacher;
 
-    public Course(String name, String courseId, double creditHours) {
+    public Course(String name, String courseId, double creditHours, Teacher teacher) {
         this.name = name;
         this.courseId = courseId;
         this.creditHours = creditHours;
         this.studentGrades = new HashMap<>();
+        this.teacher = teacher;
     }
 
     public void addStudent(Student student) {
@@ -51,4 +53,7 @@ public class Course {
         return name;
     }
     
+    public Teacher getTeacher() {
+        return teacher;
+    }
 }

@@ -82,4 +82,11 @@ CREATE TABLE `teachercourse` (
     CONSTRAINT `course_fk` FOREIGN KEY (`course_id`) REFERENCES `course` (`courseId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+use sgs;
+ALTER TABLE `course` 
+ADD COLUMN `teacher_id` varchar(50) NOT NULL,
+ADD CONSTRAINT `fk_course_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teacher` (`id`);
+
+show create table course;
+
 

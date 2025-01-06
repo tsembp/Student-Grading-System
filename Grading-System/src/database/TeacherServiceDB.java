@@ -2,6 +2,7 @@ package database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -41,16 +42,16 @@ public class TeacherServiceDB {
         }
     }
 
-    // Delete teacher from database
+   // Delete teacher from database and unassign them from courses
     public void deleteTeacher(String teacherId) {
         // Queries to delete associated records
-        String deleteTeacherCourseQuery = "DELETE FROM teachercourse WHERE teacher_id = ?";
         String deleteTeacherQuery = "DELETE FROM teacher WHERE id = ?";
         String deleteUserQuery = "DELETE FROM users WHERE user_id = ?";
+        String unassignTeacherFromCoursesQuery = "UPDATE course SET teacher_id = NULL WHERE teacher_id = ?";
 
         try (Connection conn = DatabaseConnection.connect()) {
-            // Delete records from teacher_course table
-            try (PreparedStatement stmt = conn.prepareStatement(deleteTeacherCourseQuery)) {
+            // Unassign teacher from courses
+            try (PreparedStatement stmt = conn.prepareStatement(unassignTeacherFromCoursesQuery)) {
                 stmt.setString(1, teacherId);
                 stmt.executeUpdate();
             }
@@ -75,30 +76,30 @@ public class TeacherServiceDB {
 
     // Assign teacher to course
     public void assignCourseToTeacher(String teacherId, String courseId) {
-        String checkCourseAssignedQuery = "SELECT COUNT(*) FROM teachercourse WHERE teacher_id = ? AND course_id = ?";
-        String assignCourseQuery = "INSERT INTO teachercourse (teacher_id, course_id) VALUES (?, ?)";
-    
+        String checkCourseAssignedQuery = "SELECT COUNT(*) FROM course WHERE courseId = ? AND teacher_id = ?";
+        String assignCourseQuery = "UPDATE course SET teacher_id = ? WHERE courseId = ?";
+
         try (Connection conn = DatabaseConnection.connect();
-             PreparedStatement checkStmt = conn.prepareStatement(checkCourseAssignedQuery);
-             PreparedStatement assignStmt = conn.prepareStatement(assignCourseQuery)) {
-    
-            // Check if the course is already assigned to the teacher
-            checkStmt.setString(1, teacherId);
-            checkStmt.setString(2, courseId);
+            PreparedStatement checkStmt = conn.prepareStatement(checkCourseAssignedQuery);
+            PreparedStatement assignStmt = conn.prepareStatement(assignCourseQuery)) {
+
+            // Check if the course already has a teacher assigned
+            checkStmt.setString(1, courseId);
+            checkStmt.setString(2, teacherId);
             ResultSet rs = checkStmt.executeQuery();
-    
+
             if (rs.next() && rs.getInt(1) == 0) {
                 // Course is not assigned yet, so assign it
                 assignStmt.setString(1, teacherId);
                 assignStmt.setString(2, courseId);
                 assignStmt.executeUpdate();
-    
+
                 System.out.println("Course assigned to teacher successfully.");
             } else {
                 // Course is already assigned
                 System.out.println("Course is already assigned to this teacher.");
             }
-    
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -106,8 +107,8 @@ public class TeacherServiceDB {
 
     // Un-assign course from teacher
     public void unassignCourseFromTeacher(String teacherId, String courseId) {
-        String checkCourseAssignedQuery = "SELECT COUNT(*) FROM teachercourse WHERE teacher_id = ? AND course_id = ?";
-        String unassignCourseQuery = "DELETE FROM teachercourse WHERE teacher_id = ? AND course_id = ?";
+        String checkCourseAssignedQuery = "SELECT teacher_id FROM course WHERE teacher_id = ? AND courseId = ?";
+        String unassignCourseQuery = "UPDATE course SET teacher_id = NULL WHERE teacher_id = ? AND courseId = ?";
 
         try (Connection conn = DatabaseConnection.connect();
             PreparedStatement checkStmt = conn.prepareStatement(checkCourseAssignedQuery);
@@ -118,7 +119,7 @@ public class TeacherServiceDB {
             checkStmt.setString(2, courseId);
             ResultSet rs = checkStmt.executeQuery();
 
-            if (rs.next() && rs.getInt(1) > 0) {
+            if (rs.next() && rs.getString("teacher_id") != null) {
                 // Course is assigned, so unassign it
                 unassignStmt.setString(1, teacherId);
                 unassignStmt.setString(2, courseId);
@@ -138,38 +139,86 @@ public class TeacherServiceDB {
     // Get courses for teacher
     public List<Course> getCoursesForTeacher(String teacherId) {
         List<Course> courses = new ArrayList<>();
-        String query = "SELECT c.courseName, c.courseId, c.creditHours " +
-                       "FROM course c " +
-                       "JOIN teachercourse tc ON c.courseId = tc.course_id " +
-                       "WHERE tc.teacher_id = ?";
-    
+        String query = "SELECT courseName, courseId, creditHours " +
+                    "FROM course " +
+                    "WHERE teacher_id = ?";
+
         try (Connection conn = DatabaseConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-    
-            // Log the teacherId to ensure it is being passed correctly
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            // Fetch the teacher once
+            Teacher teacher = findTeacherById(teacherId);
+            if (teacher == null) {
+                System.out.println("No teacher found with ID: " + teacherId);
+                return courses;
+            }
+
+            // Log the teacherId
             System.out.println("Fetching courses for teacher with ID: " + teacherId);
-    
+
             stmt.setString(1, teacherId);
             ResultSet rs = stmt.executeQuery();
-    
+
             while (rs.next()) {
                 // Create a Course object for each row in the result set
                 Course course = new Course(
                         rs.getString("courseName"),
                         rs.getString("courseId"),
-                        rs.getDouble("creditHours")
+                        rs.getDouble("creditHours"),
+                        teacher
                 );
                 courses.add(course);
             }
-    
+
             // Log the retrieved courses
             System.out.println("Courses retrieved: " + courses.size());
-    
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    
+
         return courses;
+    }
+
+    // Get students enrolled in teacher's course/s
+    public List<Student> getStudentsForTeacher(String teacherId) {
+        List<Student> students = new ArrayList<>();
+        String query = "SELECT DISTINCT s.user_id, u.first_name, u.last_name, u.username, u.password " +
+                        "FROM student s " +
+                        "JOIN users u ON s.user_id = u.user_id " +
+                        "JOIN studentcourse sc ON s.user_id = sc.studentId " + 
+                        "JOIN course c ON sc.courseId = c.courseId " + 
+                        "WHERE c.teacher_id = ?";
+
+        try (Connection conn = DatabaseConnection.connect();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            // Log the teacherId to ensure it is being passed correctly
+            System.out.println("Fetching students for teacher with ID: " + teacherId);
+
+            stmt.setString(1, teacherId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                // Create a Student object for each row in the result set
+                Student student = new Student(
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("user_id"), // Changed from student_id to user_id
+                        rs.getString("username"),
+                        rs.getString("password")
+                );
+                students.add(student);
+            }
+
+            // Log the retrieved students
+            System.out.println("Students retrieved: " + students.size());
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return students;
     }
 
     // Find teacher by ID in database
@@ -210,6 +259,39 @@ public class TeacherServiceDB {
             e.printStackTrace();
         }
         return null; // Return null if no teacher is found
+    }
+
+    // Method to get all teachers from the database
+    public List<Teacher> getAllTeachers() {
+        List<Teacher> teachers = new ArrayList<>();
+        
+        // Query to fetch users with role_id = 2 (teachers) and join with the Teacher table
+        String query = "SELECT u.first_name, u.last_name, u.username, u.password, u.user_id, t.department " +
+                       "FROM users u " +
+                       "JOIN teacher t ON u.user_id = t.user_id " +
+                       "WHERE u.role_id = 2";
+
+        try (Connection conn = DatabaseConnection.connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                // Create a Teacher object for each row in the result set
+                String firstName = rs.getString("first_name");
+                String lastName = rs.getString("last_name");
+                String id = rs.getString("user_id");
+                String username = rs.getString("username");
+                String password = rs.getString("password");
+                String department = rs.getString("department");
+
+                // Create Teacher instance and add to list
+                Teacher teacher = new Teacher(firstName, lastName, id, username, password, department);
+                teachers.add(teacher);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return teachers;
     }
 
 }

@@ -1,55 +1,110 @@
 /* Global Styles */
 .root {
-    font-family: Arial, sans-serif;
+    -fx-font-family: Arial, sans-serif;
+    -fx-background-color: #2c2f38; /* Dark background color */
 }
 
+/* Title Label */
 .title-label {
-    font-size: 36px;
+    font-size: 30px;
     font-weight: bold;
-    -fx-font-family: 'Segoe UI', sans-serif;
-    color: #2a2a2a;
+    color: #f1f1f1;
+    -fx-text-fill: #f1f1f1;
+}
+
+/* Field Labels */
+.label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f1f1f1; /* Change to desired text color */
+}
+
+/* Text Fields (Username and Password) */
+.text-field, .password-field {
+    -fx-font-size: 14px;
+    -fx-background-color: #3a3f48; /* Softer dark background */
+    -fx-border-radius: 5px;
+    -fx-padding: 10px;
+    -fx-text-fill: #ffffff; /* White text inside input fields */
+    -fx-border-color: #555; /* Dark border color */
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #00695c;
+}
+
+/* TextArea Styling */
+.textarea {
+    -fx-font-size: 14px;
+    -fx-background-color: #3a3f48 !important; /* Softer dark background */
+    -fx-border-radius: 5px;
+    -fx-padding: 10px;
+    -fx-text-fill: #3a3f48;
+    -fx-border-color: #555; /* Dark border color */
+    -fx-font-family: "Arial", sans-serif; /* Font for the text */
 }
 
 /* Buttons */
 .button {
-    -fx-background-color: #007dca;
-    -fx-text-fill: white;
     -fx-font-size: 14px;
+    -fx-background-color: #00695c;
+    -fx-text-fill: #d1d1d1;
+    -fx-border-radius: 5px;
     -fx-padding: 10px 20px;
     -fx-cursor: hand;
-    /* -fx-background-radius: 20px; */
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 0, 2);
-    -fx-transition: all 0.2s ease-in-out;
 }
 
 .button:hover {
-    -fx-background-color: #3f95cb;
-    -fx-scale-x: 0.95;
-    -fx-scale-y: 0.95;
+    -fx-background-color: #004d45;
 }
 
-/* Input Fields */
-.input-field {
+/* VBox styling */
+.vbox {
+    -fx-background-color: #2c2f38;
+    -fx-alignment: center;
+    -fx-padding: 30px;
+}
+
+/* Tabs styling */
+.tab-pane {
+    -fx-background-color: #2c2f38; /* Background color of the TabPane */
+    -fx-text-fill: #d1d1d1;
+}
+
+.tab {
+    -fx-background-color: #333333; /* Background color of the tab */
+    -fx-text-fill: #d1d1d1; /* Text color of the tab */
+    -fx-font-size: 16px; /* Font size of the tab text */
+    -fx-font-weight: bold; /* Font weight of the tab text */
+    -fx-padding: 10px 20px; /* Padding of the tab */
+    -fx-border-radius: 20px 20px 0 0; /* Rounded corners */
+}
+
+.tab:selected {
+    -fx-background-color: #00695c; 
+    -fx-border-color: #4CAF50; /* Border color when the tab is selected */
+    -fx-focus-color: transparent; /* Remove focus color */
+    -fx-faint-focus-color: transparent; /* Remove faint focus color */
+}
+
+.tab:hover {
+    -fx-background-color: #00796b;
+}
+
+.tab:disabled {
+    -fx-background-color: #333333;
+    -fx-text-fill: #d1d1d1;
+}
+
+
+/* Error message styling */
+.error-message {
+    -fx-text-fill: red;
     -fx-font-size: 14px;
-    -fx-padding: 8px;
-    -fx-background-color: #f0f0f0;
-    -fx-border-color: #ccc;
-    -fx-border-radius: 5px;
-    -fx-pref-width: 200px;
+    -fx-font-weight: bold;
 }
 
-.input-field:focus {
-    -fx-border-width: 2px;
-    -fx-border-color: #4CAF50;
-}
-
-/* TextArea */
-.textarea {
-    -fx-font-size: 14px;
-    -fx-padding: 10px;
-    -fx-background-color: #f0f0f0;
-    -fx-border-color: #ccc;
-    -fx-border-radius: 5px;
-    -fx-pref-width: 400px;
-    -fx-pref-height: 150px;
+/* Scene Background */
+.scene {
+    -fx-background-color: #2c2f38; /* Dark background for the whole scene */
 }

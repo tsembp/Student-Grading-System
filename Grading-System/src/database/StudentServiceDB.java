@@ -10,7 +10,9 @@ import java.util.List;
 import models.*;
 
 public class StudentServiceDB {
-    
+
+    private TeacherServiceDB teacherService = new TeacherServiceDB();
+
     // Add a student to the database
     public void addStudent(Student student) {
         String userQuery = "INSERT INTO users (first_name, last_name, user_id, username, password, role_id) VALUES (?, ?, ?, ?, ?, ?)";
@@ -83,24 +85,19 @@ public class StudentServiceDB {
     // Update student information
     public void updateStudent(Student student) {
         String updateUserQuery = "UPDATE users SET first_name = ?, last_name = ?, username = ?, password = ? WHERE user_id = ?";
-        String updateStudentQuery = "UPDATE Student SET className = ? WHERE id = ?";
         
         try (Connection conn = DatabaseConnection.connect();
-            PreparedStatement updateUserStmt = conn.prepareStatement(updateUserQuery);
-            PreparedStatement updateStudentStmt = conn.prepareStatement(updateStudentQuery)) {
+            PreparedStatement updateUserStmt = conn.prepareStatement(updateUserQuery)) {
             
             // Update the users table with the new user information
             updateUserStmt.setString(1, student.getFirstName());
             updateUserStmt.setString(2, student.getLastName());
-            updateUserStmt.setString(3, student.getId()); 
-            updateUserStmt.setString(4, student.getUsername()); 
+            updateUserStmt.setString(3, student.getUsername()); 
+            updateUserStmt.setString(4, student.getPassword());
+            updateUserStmt.setString(5, student.getId()); 
             updateUserStmt.executeUpdate();
             
-            // Update the Student table with the new className information
-            updateStudentStmt.setString(2, student.getId());
-            updateStudentStmt.executeUpdate();
-            
-            System.out.println("Student and associated user information updated successfully.");
+            System.out.println("Student user information updated successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -179,17 +176,48 @@ public class StudentServiceDB {
         }
     }
 
-    // Get student's courses
+    // Update grades for student in course
+    public void updateGradesForStudent(String studentId, String courseId, Double midtermGrade, Double endtermGrade, Double projectGrade) {
+        String query = "UPDATE grade SET midtermGrade = ?, endTermGrade = ?, projectGrade = ? " +
+                       "WHERE studentId = ? AND courseId = ?";
+    
+        try (Connection conn = DatabaseConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+    
+            // Set the parameters in the query
+            stmt.setDouble(1, midtermGrade);
+            stmt.setDouble(2, endtermGrade);
+            stmt.setDouble(3, projectGrade);
+            stmt.setString(4, studentId);
+            stmt.setString(5, courseId);
+    
+            // Execute the update
+            int rowsUpdated = stmt.executeUpdate();
+    
+            // Check if the update was successful
+            if (rowsUpdated > 0) {
+                System.out.println("Grades updated successfully for student: " + studentId + " in course: " + courseId);
+            } else {
+                System.out.println("No matching record found for student: " + studentId + " in course: " + courseId);
+            }
+    
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error updating grades for student: " + studentId + " in course: " + courseId);
+        }
+    }
+
+    // Get student's courses with teacher information
     public List<Course> getCoursesForStudent(String studentId) {
-        String query = "SELECT c.courseName, c.courseId, c.creditHours " +
-                       "FROM Course c " +
-                       "JOIN StudentCourse sc ON c.courseId = sc.courseId " +
-                       "WHERE sc.studentId = ?";
+        String query = "SELECT c.courseName, c.courseId, c.creditHours, c.teacher_id " +
+               "FROM course c " +
+               "JOIN studentcourse sc ON c.courseId = sc.courseId " +
+               "WHERE sc.studentId = ?";
         
         List<Course> courses = new ArrayList<>();
         
         try (Connection conn = DatabaseConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
             
             // Set the studentId parameter
             stmt.setString(1, studentId);
@@ -197,13 +225,17 @@ public class StudentServiceDB {
             ResultSet rs = stmt.executeQuery();
             
             while (rs.next()) {
-                // Retrieve course details from the result set
-                String courseId = rs.getString("courseName");
-                String courseName = rs.getString("courseId");
+                // Retrieve course details and teacher_id from the result set
+                String courseId = rs.getString("courseId");
+                String courseName = rs.getString("courseName");
                 double creditHours = rs.getDouble("creditHours");
+                String teacherId = rs.getString("teacher_id");  // Get teacher_id
+                
+                // Find teacher by teacherId
+                Teacher teacher = teacherService.findTeacherById(teacherId);
                 
                 // Create a new Course object and add it to the list
-                Course course = new Course(courseId, courseName, creditHours);
+                Course course = new Course(courseId, courseName, creditHours, teacher);
                 courses.add(course);
             }
             
@@ -213,7 +245,7 @@ public class StudentServiceDB {
         
         return courses;
     }
-    
+
     // Get student's grades for a course
     public Grade getGradesForStudentInCourse(String studentId, String courseId) {
         String query = "SELECT midtermGrade, endTermGrade, projectGrade " +
@@ -249,7 +281,7 @@ public class StudentServiceDB {
 
     // Get all student records from database
     public List<Student> getAllStudents() {
-        String query = "SELECT s.id, s.className, u.first_name, u.last_name, u.username, u.password " +
+        String query = "SELECT s.id, u.first_name, u.last_name, u.username, u.password " +
                     "FROM Student s " +
                     "JOIN users u ON s.user_id = u.user_id";
         

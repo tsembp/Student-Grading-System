@@ -3,6 +3,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "TeacherServiceDBTest",
+      "request": "launch",
+      "mainClass": "database.TeacherServiceDBTest",
+      "projectName": "Grading-System_b4ca4b33"
+    },
+    {
+      "type": "java",
+      "name": "CourseServiceDBTest",
+      "request": "launch",
+      "mainClass": "database.CourseServiceDBTest",
+      "projectName": "Grading-System_b4ca4b33"
+    },
+    {
+      "type": "java",
       "name": "TestClass",
       "request": "launch",
       "mainClass": "ui.TestClass",
