@@ -49,13 +49,13 @@ public class AdminWindowUI {
         tabPane.getTabs().addAll(createStudentTab(), createTeacherTab(), createCourseTab(), manageStudentTab());
         mainLayout.setCenter(tabPane);
     
-        // Bottom: Footer (Optional)
+        // Footer
         HBox footer = new HBox();
         footer.setAlignment(Pos.CENTER);
-        Label footerLabel = new Label("Student Grading System - Admin Panel");
-        footerLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #888; -fx-padding: 10px;");
+        footer.setStyle("-fx-border-color: #888; -fx-border-width: 1px 0 0 0; -fx-padding: 10px;");
+        Label footerLabel = new Label("Student Grading System - Admin Dashboard");
+        footerLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #888;");
         footer.getChildren().add(footerLabel);
-        mainLayout.setBottom(footer);
     
         // Scene setup
         Scene scene = new Scene(mainLayout, 850, 700);

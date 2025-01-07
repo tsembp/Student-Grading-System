@@ -6,48 +6,66 @@ A comprehensive Java-based application that manages students, courses, and grade
 ## 🛠️ Features
 
 ### ⭐ Current Features
-1. **Student Management:**
-   - Add new students by entering their name, ID, and class.
-   - Update student's details (name, ID, class, remove enrolled courses and edit assigned grades).
-   - Delete students.
-   - View a list of all students and their enrolled courses, with grades.
-   
-2. **Course Management:**
-   - Add new courses by specifying the course name and ID.
-   - Assign students to courses.
-   - Assign grades to students for courses they are enrolled in.
-   
-3. **Student-Course Relationship:**
-   - View the courses a student is enrolled in and their corresponding grades.
+1. **Role-Based Authentication:**
+   - Secure login for **Admin**, **Teacher**, and **Student** users.
+   - Each role has access to specific features based on permissions.
 
-4. **User Interface:**
+2. **Student Management (Admin Only):**
+   - Add new students by entering their name, ID, and class.
+   - Update student details (name, ID, class).
+   - Remove students from the system.
+   - Assign courses and grades to students.
+   - View all students and their enrolled courses with grades.
+
+3. **Teacher Management (Admin Only):**
+   - Add and remove teachers.
+   - Assign courses to teachers.
+   - Manage teacher accounts.
+
+4. **Course Management:**
+   - Add and remove courses. (Αdmin Only)
+   - Assign students to courses (Admin only).
+   - Assign and edit grades for students in their courses. (Admin & Teacher)
+   - Remove students from their courses. (Admin, Teacher & Student)
+
+5. **Student Features (Student Only):**
+   - View personal courses and grades.
+   - Drop courses.
+   
+6. **User Interface:**
    - Simple and intuitive GUI built using JavaFX.
-   - Tabs for managing students and courses.
+   - **Role-based windows**:
+     - Admin Dashboard
+     - Teacher Dashboard
+     - Student Dashboard
+   - Tabs for managing students, courses, and teachers.
    - Alerts for successful or failed actions (e.g., adding students, assigning courses/grades).
 
-### 🔜 Upcoming Features
-1. **Advanced Reporting:**
-   - Generate detailed reports for students, including average grades, course performance, etc.
-   
-2. **Grade Calculation Algorithms:**
-   - Implement functionality for calculating final grades based on weighted assignments, exams, etc.
-      
-3. **User Authentication:**
-   - Implement authentication to secure the application and allow multiple users (teachers, administrators, etc.).
 
-4. **Data Persistence:**
-   - Implement saving and loading of data, so that students, courses, and grades persist between application restarts.
+## 🔑 Usage by Roles
 
-5. **UI Improvement:**
-   - Enhance the user interface for a more intuitive and responsive experience.
-   - Implement dynamic feedback for actions (e.g., adding students, assigning courses).
-   - Improve the layout for better accessibility and user navigation.
+### 👨‍💼 Admin:
+- Add, edit, and remove students and teachers.
+- Manage courses and assign them to teachers and students.
+- Full control over courses, users, and grades.
+
+### 🧑‍🏫 Teacher:
+- Assign and update student grades.
+- Remove students from their courses.
+- View assigned courses and enrolled students.
+
+### 🎓 Student:
+- View enrolled courses and assigned grades.
+- Check personal academic progress.
 
 
-## Demo Video
+## 🎥 Demo Videos
 
-Watch the demo video below to see the Student Grading System in action:
-[Demo Video](https://github.com/tsembp/Student-Grading-System/blob/main/assets/preview-video.mp4)
+- **Student Interface Preview:**  
+  [![Student Preview](https://github.com/tsembp/Student-Grading-System/blob/main/assets/student-preview.mp4)](https://github.com/tsembp/Student-Grading-System/blob/main/assets/student-preview.mp4)
+
+- **Teacher Interface Preview:**  
+  [![Teacher Preview](https://github.com/tsembp/Student-Grading-System/blob/main/assets/teacher-preview.mp4)](https://github.com/tsembp/Student-Grading-System/blob/main/assets/teacher-preview.mp4)
 
 
 ## Requirements
@@ -77,28 +95,6 @@ To run the project locally:
 
 5. Run the `StudentGradingSystemUI` class to start the application.
 
-## Usage
-
-- **Add a Student:**
-  - Go to the "Manage Students" tab, fill in the student's name, ID, and class, and click "Add Student."
-  
-- **Add a Course:**
-  - Go to the "Manage Courses" tab, fill in the course name and ID, and click "Add Course."
-
-- **Assign a Student to a Course:**
-  - In the "Manage Courses" tab, enter the student's ID and the course ID, then click "Assign Course to Student."
-
-- **Assign a Grade:**
-  - In the "Manage Courses" tab, enter the student's ID, course ID, and grade, then click "Assign Grade."
-
 ## Contributing
 
 Feel free to fork the repository, submit issues, and create pull requests for improvements or bug fixes. Contributions are welcome!
-
-<!-- ## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-*Note:* This is a simple project and can be further expanded with more features like authentication, advanced reporting, and data persistence. Contributions and suggestions for new features are welcome! -->

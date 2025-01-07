@@ -144,6 +144,19 @@ public class StudentWindowUI {
             courseTableView.getItems().addAll(updatedCourses);
         });
 
+        // Add a logout/exit button to exit
+        Button logoutButton = new Button("Logout");
+        logoutButton.setStyle("-fx-font-size: 14px; -fx-background-color: red; -fx-text-fill: white; -fx-border-radius: 5px; -fx-padding: 10px 20px;");
+        logoutButton.setOnAction(_ -> {
+            System.exit(0);
+        });
+
+        // Add refresh and logout buttons to a horizontal box
+        HBox buttonBox = new HBox(20);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.setPadding(new Insets(10));
+        buttonBox.getChildren().addAll(refreshButton, logoutButton);
+
         // Footer
         HBox footer = new HBox();
         footer.setAlignment(Pos.CENTER);
@@ -156,7 +169,7 @@ public class StudentWindowUI {
         VBox vbox = new VBox(20);
         vbox.setPadding(new Insets(30));
         vbox.setAlignment(Pos.CENTER);
-        vbox.getChildren().addAll(welcomeLabel, courseTableView, refreshButton, footer);
+        vbox.getChildren().addAll(welcomeLabel, courseTableView, buttonBox, footer);
 
         // Create scene and show student window
         Scene scene = new Scene(vbox, 800, 500);

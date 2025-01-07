@@ -66,35 +66,57 @@
 }
 
 /* Tabs styling */
+/* Tab Pane Styling */
 .tab-pane {
-    -fx-background-color: #2c2f38; /* Background color of the TabPane */
-    -fx-text-fill: #d1d1d1;
+    -fx-background-color: #2c2f38; /* Dark background for the entire tab pane */
+    -fx-border-radius: 10px; /* Rounded edges */
+    -fx-border-color: #555;  /* Border to match other components */
+    -fx-padding: 5px;
 }
 
+/* Individual Tab Styling */
 .tab {
-    -fx-background-color: #333333; /* Background color of the tab */
-    -fx-text-fill: #d1d1d1; /* Text color of the tab */
-    -fx-font-size: 16px; /* Font size of the tab text */
-    -fx-font-weight: bold; /* Font weight of the tab text */
-    -fx-padding: 10px 20px; /* Padding of the tab */
-    -fx-border-radius: 20px 20px 0 0; /* Rounded corners */
+    -fx-background-color: #3a3f48;  /* Dark background for tabs */
+    -fx-text-fill: #f1f1f1;         /* Light text color */
+    -fx-border-radius: 10px 10px 0 0; /* Soft rounded corners only for top */
+    -fx-border-color: #555;          /* Border around the tab */
+    -fx-padding: 10px 15px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
 }
 
+/* Styling for the Active Tab */
 .tab:selected {
     -fx-background-color: #00695c; 
-    -fx-border-color: #4CAF50; /* Border color when the tab is selected */
-    -fx-focus-color: transparent; /* Remove focus color */
-    -fx-faint-focus-color: transparent; /* Remove faint focus color */
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #4CAF50;
+    -fx-border-radius: 10px 10px 0 0;
+    -fx-border-width: 2px;
 }
 
+/* Hover Effect */
 .tab:hover {
-    -fx-background-color: #00796b;
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: #ffffff;
 }
 
+/* Disabled Tab Styling */
 .tab:disabled {
-    -fx-background-color: #333333;
-    -fx-text-fill: #d1d1d1;
+    -fx-background-color: #444;
+    -fx-text-fill: #888;
+    -fx-border-radius: 10px;
 }
+
+/* Remove the blue focus border on tabs */
+.tab:focus-visible, 
+.tab:focused {
+    -fx-focus-color: transparent;    /* Disables the blue highlight */
+    -fx-faint-focus-color: transparent; 
+    -fx-border-color: transparent;   /* Remove the focus border */
+    -fx-border-width: 0;             /* Ensure no border */
+}
+
+
 
 /* Table Styling */
 .table-view {
@@ -173,6 +195,48 @@
 .table-view .scroll-bar:thumb:hover {
     -fx-background-color: #004d45; /* Darker thumb color on hover */
 }
+
+
+/* Accordion Styling */
+.accordion {
+    -fx-background-color: #2c2f38; /* Dark background matching the rest */
+    -fx-border-color: #555;         /* Border matching the table */
+    -fx-border-radius: 5px;
+    -fx-padding: 10px;
+}
+
+/* Styling for the Title Pane (Dropdown Headers) */
+.titled-pane {
+    -fx-background-color: #3a3f48;   /* Darker shade for dropdown header */
+    -fx-border-color: #555;          /* Matching border color */
+    -fx-border-radius: 5px;
+    -fx-text-fill: #f1f1f1;          /* White text */
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px;
+}
+
+/* Styling for the Title Pane Text (Header Text) */
+.titled-pane > .title {
+    -fx-background-color: #3a3f48;  /* Header background */
+    -fx-text-fill: #f1f1f1;         /* White text */
+    -fx-font-weight: bold;
+    -fx-padding: 10px;
+}
+
+/* Styling for the Expanded Pane */
+.titled-pane:expanded > .title {
+    -fx-background-color: #00695c; /* Highlight color for expanded pane */
+    -fx-text-fill: white;
+}
+
+/* Styling for Content Inside the Expanded Pane */
+.titled-pane > *.content {
+    -fx-background-color: #2c2f38;  /* Dark background for content area */
+    -fx-padding: 10px;
+    -fx-border-color: #555;
+}
+
 
 
 /* Error message styling */
