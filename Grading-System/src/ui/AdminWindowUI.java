@@ -566,8 +566,6 @@ public class AdminWindowUI {
         assignCourseButton.setOnAction(_ -> {
             String studentId = studentIdField.getText();
             String courseId = courseIdForStudentField.getText();
-            // Student student = studentService.findStudentById(studentId);
-            // Course course = courseService.getCourseById(courseId);
             Student student = studentService.findStudentById(studentId);
             Course course = courseService.getCourseById(courseId);
             if (student != null && course != null) {
@@ -577,6 +575,9 @@ public class AdminWindowUI {
             } else {
                 showAlert("Error", "Student or Course not found.");
             }
+
+            studentIdField.clear();
+            courseIdForStudentField.clear();
         });
 
         courseLayout.getChildren().addAll(

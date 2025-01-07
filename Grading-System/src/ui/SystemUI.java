@@ -6,16 +6,14 @@ import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class SystemUI extends Application {
 
     private UserServiceDB userService = new UserServiceDB();
-    private CourseServiceDB courseService = new CourseServiceDB();
-    private StudentServiceDB studentService = new StudentServiceDB();
-    private TeacherServiceDB teacherService = new TeacherServiceDB();
+    private CourseServiceDB courseServiceDB = new CourseServiceDB();
 
     public static void main(String[] args) {
         launch(args);
@@ -24,9 +22,10 @@ public class SystemUI extends Application {
     @Override
     public void start(Stage primaryStage) {
 
+        // userService.addAdminUser(new User("Admin", "User", "admin123", "admin", "adminPass123", Role.ADMIN));
+        // DatabaseSeeder.seedDatabase();
+        // DatabaseSeeder.clearDatabase();
         // User u = userService.authenticateUser("admin", "adminPass123");
-        User u = userService.authenticateUser("bRoss", "teacherPass123");
-        // showAdminWindow(user);
 
         // Create login UI elements
         Label titleLabel = new Label("Login");
@@ -57,8 +56,7 @@ public class SystemUI extends Application {
             String password = passwordField.getText();
 
             // Authenticate the user
-            // User user = userService.authenticateUser(username, password);
-            User user = u;
+            User user = userService.authenticateUser(username, password);
 
             if (user != null) {
                 // If authentication is successful, check the user's role and show the respective window

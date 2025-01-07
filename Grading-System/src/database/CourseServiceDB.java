@@ -55,6 +55,7 @@ public class CourseServiceDB {
         return null;
     }
 
+    // Get students enrolled in course
     public List<Student> getStudentsForCourse(String courseId) {
         String query = "SELECT u.first_name, u.last_name, u.user_id, u.username " +
                        "FROM users u " +
@@ -101,4 +102,34 @@ public class CourseServiceDB {
         }
     }
     
+    // Get all courses from database
+    public List<Course> getAllCourses() {
+        List<Course> courses = new ArrayList<>();
+        String query = "SELECT * FROM Course";
+
+        try (Connection connection = DatabaseConnection.connect();
+            PreparedStatement statement = connection.prepareStatement(query);
+            ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                // Extract data from the result set
+                String courseId = resultSet.getString("courseId");
+                String courseName = resultSet.getString("courseName");
+                double creditHours = resultSet.getDouble("creditHours");
+                String teacherId = resultSet.getString("teacher_id");
+
+                Teacher teacher = teacherServiceDB.findTeacherById(teacherId);
+
+                // Create a Course object and add it to the list
+                Course course = new Course(courseName, courseId, creditHours, teacher);
+                courses.add(course);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving courses: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return courses;
+    }
+
 }

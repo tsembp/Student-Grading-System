@@ -1,5 +1,15 @@
 use sgs;
 
+show create table course;
+show create table grade;
+show create table roles;
+show create table student;
+show create table studentcourse;
+show create table teacher;
+show create table users;
+
+
+
 select * from users;
 select * from student;
 select * from teacher;

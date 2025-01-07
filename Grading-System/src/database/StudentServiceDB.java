@@ -235,7 +235,7 @@ public class StudentServiceDB {
                 Teacher teacher = teacherService.findTeacherById(teacherId);
                 
                 // Create a new Course object and add it to the list
-                Course course = new Course(courseId, courseName, creditHours, teacher);
+                Course course = new Course(courseName, courseId, creditHours, teacher);
                 courses.add(course);
             }
             

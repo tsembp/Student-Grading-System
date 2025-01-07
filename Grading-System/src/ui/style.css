@@ -96,6 +96,84 @@
     -fx-text-fill: #d1d1d1;
 }
 
+/* Table Styling */
+.table-view {
+    -fx-background-color: #3a3f48; /* Softer dark background */
+    -fx-border-color: #555; /* Dark border color */
+    -fx-border-radius: 5px;
+}
+
+.table-view .table-column {
+    -fx-font-size: 14px;
+    -fx-text-fill: #f1f1f1; /* Light text for column headers */
+    -fx-background-color: #333333; /* Dark background for column headers */
+    -fx-alignment: center-left; /* Align text to the left */
+    -fx-padding: 5px; /* Padding around the text */
+}
+
+.table-view .table-column-header {
+    -fx-font-weight: bold;
+    -fx-background-color: #2c2f38;
+    -fx-text-fill: #d1d1d1; 
+    -fx-border-color: #555;
+}
+
+.table-view .table-row {
+    -fx-background-color: #3a3f48; /* Softer dark background for rows */
+    -fx-text-fill: #f1f1f1; /* Light text for rows */
+}
+
+.table-view .table-row-cell {
+    -fx-border-color: #d1d1d1;
+}
+
+.table-view .table-row-cell:focused {
+    -fx-background-color: #507d7f; /* Highlighted background on focus */
+    -fx-text-fill: #ffffff; /* White text on focus */
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: #3c6062; /* Green hover effect on rows */
+    -fx-text-fill: #ffffff; /* White text on hover */
+}
+
+.table-view .table-cell {
+    -fx-font-size: 14px;
+    -fx-background-color: #3a3f48; /* Softer dark background */
+    -fx-text-fill: #f1f1f1; /* Light text color */
+    -fx-padding: 5px; /* Padding inside the cells */
+    -fx-alignment: center; /* Center text alignment */
+}
+
+.table-view .table-cell:focused {
+    -fx-background-color: #3c6062; /* Highlighted background for focused cells */
+    -fx-text-fill: #ffffff; /* White text on focus */
+}
+
+.table-view .table-cell:hover {
+    -fx-background-color: #3c6062; /* Hover effect on table cells */
+    -fx-text-fill: #ffffff; /* White text on hover */
+}
+
+/* Table Column Resizing */
+.table-view .table-column .resize-line {
+    -fx-background-color: #d1d1d1; /* Light resize line */
+}
+
+/* Table Scrollbars */
+.table-view .scroll-bar {
+    -fx-background-color: #2c2f38; /* Dark background for scrollbars */
+    -fx-opacity: 0.7; /* Slight transparency for scrollbars */
+}
+
+.table-view .scroll-bar:thumb {
+    -fx-background-color: #00695c; /* Green thumb color */
+}
+
+.table-view .scroll-bar:thumb:hover {
+    -fx-background-color: #004d45; /* Darker thumb color on hover */
+}
+
 
 /* Error message styling */
 .error-message {
