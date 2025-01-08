@@ -1,7 +1,7 @@
 
 # 🧑‍🎓 Student Grading System
 
-A comprehensive Java-based application that manages students, courses, and grades. This system allows users to add students and courses, assign students to courses, and assign grades to students. The application also provides a simple graphical user interface (GUI) built using JavaFX for easy interaction.
+A Java-based student grading system with role-based authentication and MySQL integration. Users can manage students, courses, and grades through a modern JavaFX GUI with role-specific dashboards.
 
 ## 🛠️ Features
 
