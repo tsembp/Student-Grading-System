@@ -76,10 +76,10 @@ A Java-based student grading system with role-based authentication and MySQL int
 ## 🎥 Demo Videos
 
 - **Student Interface Preview:**  
-  [![Student Preview](https://github.com/tsembp/Student-Grading-System/blob/main/assets/student-preview.mp4)](https://github.com/tsembp/Student-Grading-System/blob/main/assets/student-preview.mp4)
+  [![Student Preview](https://www.youtube.com/watch?v=ZJqXoP3K3uU&list=PLcBZ1qLPGrV2LztfPFz9k5JzIsLqBucF4&ab_channel=PanagiotisTsembekis)](https://www.youtube.com/watch?v=ZJqXoP3K3uU&list=PLcBZ1qLPGrV2LztfPFz9k5JzIsLqBucF4&ab_channel=PanagiotisTsembekis)
 
 - **Teacher Interface Preview:**  
-  [![Teacher Preview](https://github.com/tsembp/Student-Grading-System/blob/main/assets/teacher-preview.mp4)](https://github.com/tsembp/Student-Grading-System/blob/main/assets/teacher-preview.mp4)
+  [![Teacher Preview](https://www.youtube.com/watch?v=YKvESa6d8vU&list=PLcBZ1qLPGrV2LztfPFz9k5JzIsLqBucF4&index=2&ab_channel=PanagiotisTsembekis)](https://www.youtube.com/watch?v=YKvESa6d8vU&list=PLcBZ1qLPGrV2LztfPFz9k5JzIsLqBucF4&index=2&ab_channel=PanagiotisTsembekis)
 
 
 ## Requirements
