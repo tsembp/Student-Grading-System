@@ -44,19 +44,33 @@ A comprehensive Java-based application that manages students, courses, and grade
 
 ## 🔑 Usage by Roles
 
-### 👨‍💼 Admin:
-- Add, edit, and remove students and teachers.
-- Manage courses and assign them to teachers and students.
-- Full control over courses, users, and grades.
+**Login Screen Preview:**  
+<img src="assets/login-screen.png" alt="Login Screen" width="400">
+
+### 🎓 Student:
+- View enrolled courses and assigned grades.
+- Check personal academic progress.
+
+**Student Dashboard Preview:**  
+<img src="assets/student-dashboard.png" alt="Student Dashboard" width="400">
 
 ### 🧑‍🏫 Teacher:
 - Assign and update student grades.
 - Remove students from their courses.
 - View assigned courses and enrolled students.
 
-### 🎓 Student:
-- View enrolled courses and assigned grades.
-- Check personal academic progress.
+**Teacher Dashboard Preview:**  
+<img src="assets/teacher-dashboard.png" alt="Teacher Dashboard" width="400">
+
+
+### 👨‍💼 Admin:
+- Add, edit, and remove students and teachers.
+- Manage courses and assign them to teachers and students.
+- Full control over courses, users, and grades.
+
+**Admin Dashboard Preview (Buggy Tab Header Styling - Upcoming Fix)**  
+<img src="assets/admin-dashboard.png" alt="Admin Dashboard" width="400">
+
 
 
 ## 🎥 Demo Videos

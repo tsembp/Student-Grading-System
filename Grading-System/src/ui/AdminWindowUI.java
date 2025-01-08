@@ -56,6 +56,8 @@ public class AdminWindowUI {
         Label footerLabel = new Label("Student Grading System - Admin Dashboard");
         footerLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #888;");
         footer.getChildren().add(footerLabel);
+
+        mainLayout.setBottom(footer);
     
         // Scene setup
         Scene scene = new Scene(mainLayout, 850, 700);
